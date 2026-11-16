@@ -1,0 +1,2396 @@
+<body>
+<div class="phone" id="phone">
+  <div class="app">
+    <!-- ================= 列表页 ================= -->
+    <section class="view" id="listView">
+      <div class="sel-top" id="selTop">
+        <button class="icon-btn" id="selClose" aria-label="退出多选">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+        <span class="count" id="selCount">已选 0 项</span>
+        <button class="mini-btn" id="selAll">全选</button>
+      </div>
+
+      <div class="topbar">
+        <button class="icon-btn menu-btn" id="settingsBtn" aria-label="设置">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 7h16"/><path d="M4 12h11"/><path d="M4 17h7"/></svg>
+        </button>
+        <div class="topbar-main">
+          <p class="sub" id="listSub">—</p>
+        </div>
+        <div class="topbar-actions"></div>
+      </div>
+
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        <input id="searchInput" type="search" placeholder="搜索标题、话题或转写内容" />
+      </div>
+
+      <div class="chips" id="chips"></div>
+      <div class="list" id="recList"></div>
+
+      <div class="rec-hud" id="recHud">
+        <span class="led"></span>
+        <span class="txt" id="recTxt">录音中</span>
+        <span class="clock" id="recClock">00:00</span>
+        <span class="levels"><i></i><i></i><i></i><i></i><i></i></span>
+      </div>
+
+      <div class="sel-bottom" id="selBottom">
+        <button id="selFav">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="m12 3.6 2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.9-5.2 2.9 1-5.9L3.5 9.8l5.9-.8z"/></svg>
+          收藏
+        </button>
+        <button id="selShare">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M4 13v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg>
+          分享
+        </button>
+        <button id="selRename">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L20 8l-4-4L4 16v4Z"/></svg>
+          重命名
+        </button>
+        <button id="selDelete" class="danger">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>
+          删除
+        </button>
+      </div>
+
+      <div class="rec-dock" id="recDock">
+        <button class="pause-btn" id="hudPause" aria-label="暂停录音">
+          <svg id="hudPauseIcon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5" width="3.6" height="14" rx="1.4"/><rect x="13.4" y="5" width="3.6" height="14" rx="1.4"/></svg>
+          <span id="hudPauseLabel">暂停</span>
+        </button>
+        <button class="fab" id="recBtn" aria-label="开始录音">
+          <svg class="ico-mic" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3" fill="currentColor" stroke="none"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg>
+          <svg class="ico-stop" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="3"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= 详情页 ================= -->
+    <section class="view detail" id="detailView">
+      <div class="detail-head">
+        <button class="icon-btn" id="backBtn" aria-label="返回">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+        </button>
+        <div class="title-wrap">
+          <h2 id="dTitle">—</h2>
+          <p class="meta" id="dMeta">—</p>
+        </div>
+        <button class="icon-btn" id="shareBtn" aria-label="导出与分享">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M4 14v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></svg>
+        </button>
+      </div>
+
+      <div class="detail-tags" id="detailTags"></div>
+
+      <div class="detail-body" id="detailBody">
+        <div class="player">
+          <div class="wave" id="wave"></div>
+          <div class="player-row">
+            <div class="time"><b id="curTime">00:00</b> / <span id="totTime">00:00</span></div>
+            <div class="ctrl">
+              <button class="round-btn" id="back15" aria-label="后退十五秒">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a8 8 0 1 1 2.4 6"/><path d="M4 4v6h6"/></svg>
+              </button>
+              <button class="round-btn main" id="playBtn" aria-label="播放">
+                <svg id="playIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2c0-.8.9-1.3 1.6-.9l9 6.8c.6.4.6 1.3 0 1.8l-9 6.8c-.7.4-1.6-.1-1.6-.9V5.2Z"/></svg>
+              </button>
+              <button class="round-btn" id="fwd15" aria-label="前进十五秒">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10a8 8 0 1 0-2.4 6"/><path d="M20 4v6h-6"/></svg>
+              </button>
+              <button class="speed" id="speedBtn">1.0×</button>
+            </div>
+          </div>
+          <div class="speed-pop" id="speedPop"></div>
+        </div>
+
+        <div class="seg-tabs" id="segTabs">
+          <button class="active" data-tab="text">逐字稿</button>
+          <button data-tab="summary">摘要</button>
+          <button data-tab="md">Markdown</button>
+        </div>
+
+        <div id="textPane">
+          <div class="section-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h12M4 18h8"/></svg>
+            <span id="transHint">逐字稿</span>
+            <span class="grow"></span>
+            <button class="mini-btn copy-btn" id="copyText">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-7A2.5 2.5 0 0 0 3 5.5v7A2.5 2.5 0 0 0 5.5 15"/></svg>
+              复制
+            </button>
+          </div>
+          <div class="transcript" id="transcript"></div>
+        </div>
+
+        <div id="summaryPane" hidden>
+          <div class="section-title">
+            AI 摘要 · Markdown 渲染
+            <span class="grow"></span>
+            <button class="mini-btn copy-btn" id="copySummary">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-7A2.5 2.5 0 0 0 3 5.5v7A2.5 2.5 0 0 0 5.5 15"/></svg>
+              复制
+            </button>
+          </div>
+          <div class="md" id="sumMd"></div>
+        </div>
+
+        <div id="mdPane" hidden>
+          <div class="section-title">
+            笔记文档 · Markdown 源码
+            <span class="grow"></span>
+            <button class="mini-btn copy-btn" id="copyMd">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-7A2.5 2.5 0 0 0 3 5.5v7A2.5 2.5 0 0 0 5.5 15"/></svg>
+              复制
+            </button>
+          </div>
+          <div class="md" id="mdView"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <aside class="drawer" id="drawer">
+      <div class="drawer-head">
+        <span>设置</span>
+        <button class="drawer-close" id="drawerClose" aria-label="关闭设置">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="drawer-body">
+        <div class="drawer-label" id="langLabel">语言</div>
+        <div class="lang-seg" id="langSeg">
+          <button data-lang="zh">中文</button>
+          <button data-lang="en">English</button>
+        </div>
+
+        <div class="drawer-label" id="themeLabel">界面配色</div>
+        <div class="theme-grid" id="themeGrid"></div>
+        
+
+        <button class="drawer-row" id="openLocalBtn" style="margin-top:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2l1.6 2h6.2A2.5 2.5 0 0 1 19 9.5v7A2.5 2.5 0 0 1 16.5 19h-11A2.5 2.5 0 0 1 3 16.5v-9Z"/></svg>
+          <span id="openLocalTxt">打开</span>
+          <small id="openLocalSub">本地音频</small>
+        </button>
+
+        <button class="drawer-row" id="trashBtn" style="margin-top:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>
+          <span id="trashTxt">回收站</span>
+          <small id="trashCount"></small>
+        </button>
+      </div>
+    </aside>
+
+    <div class="sheet" id="filterSheet">
+      <div class="grabber"></div>
+      <h3 id="fsTitle">筛选</h3>
+      <p class="hint" id="fsHint">单选，点选后即时生效</p>
+      <div class="opt-list" id="fsList"></div>
+      <div class="fs-custom" id="fsCustom" hidden>
+        <div class="fs-custom-h">自定义时间范围</div>
+        <div class="fs-range">
+          <input type="date" id="fromDate" />
+          <span>—</span>
+          <input type="date" id="toDate" />
+        </div>
+        <button class="btn-primary" id="applyRange">应用到筛选</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="importSheet">
+      <div class="grabber"></div>
+      <h3>打开本地音频</h3>
+      <p class="hint">只列出受支持的音频文件，选中后自动离线转写</p>
+      <div class="audio-head">
+        <span>本机音频</span>
+        <small id="audioCount"></small>
+      </div>
+      <div class="audio-list" id="audioList"></div>
+      <div class="fmt-box">
+        <div class="fmt-title">支持的格式</div>
+        <div class="fmt-list" id="fmtList">
+          <span>mp3</span><span>m4a / m4b</span><span>aac</span><span>wav</span>
+          <span>flac</span><span>ogg / opus</span><span>amr</span><span>3gp</span>
+          <span>aiff</span><span>wma</span><span>mid</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet" id="trashSheet">
+      <div class="grabber"></div>
+      <h3>回收站</h3>
+      <p class="hint">删除的录音先放在这里，可以恢复，也可以彻底删除</p>
+      <div class="audio-list" id="trashList"></div>
+      <button class="mini-btn" id="trashPurgeAll" style="width:100%;height:42px;border-radius:12px">清空回收站</button>
+    </div>
+
+    <div class="sheet" id="mtSheet">
+      <div class="grabber"></div>
+      <h3>首次使用翻译</h3>
+      <p class="hint">需要先下载离线翻译模型，建议在 Wi-Fi 下进行；下载完成后完全离线，不再联网。</p>
+      <div class="fmt-box">
+        <div class="fmt-title">模型信息</div>
+        <div class="fmt-list">
+          <span>腾讯混元 HY-MT1.5</span><span>1.8B 参数</span><span>Q4_K_M 量化</span>
+          <span>中 ⇄ 英</span><span>约 1.08 GB</span><span>魔搭 ModelScope</span>
+        </div>
+        <div class="fmt-note" id="mtNote">首次下载 + 加载约 1–3 分钟；之后每句翻译约 1–3 秒。</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="mini-btn" id="mtCancel" style="flex:1;height:44px;border-radius:13px;font-size:13px">取消</button>
+        <button class="btn-primary" id="mtStart" style="flex:1">下载并翻译</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="exportSheet">
+      <div class="grabber"></div>
+      <h3>导出与分享</h3>
+      <p class="hint" id="exportSub">选择格式</p>
+      <div class="opt-list" id="exportList"></div>
+    </div>
+
+    <div class="sheet" id="topicSheet">
+      <div class="grabber"></div>
+      <h3>话题标签</h3>
+      <p class="hint">点选已有话题，或输入一个新的标签</p>
+      <div class="topic-wrap" id="topicChips"></div>
+      <div class="topic-input-row">
+        <input id="topicInput" type="text" maxlength="10" placeholder="新话题，如 产品讨论" />
+        <button class="btn-primary" id="saveTopic">保存</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="speakerSheet">
+      <div class="grabber"></div>
+      <h3>说话人管理</h3>
+      <p class="hint" id="speakerHint">已有发言的说话人直接列出；没有发言的可以先新增，再批量标识句子</p>
+      <div class="topic-wrap" id="speakerChips"></div>
+      <button class="btn-ghost" id="assignBtn" style="width:100%;margin-bottom:10px">批量标识句子</button>
+      <div class="topic-input-row">
+        <input id="speakerInput" type="text" maxlength="12" placeholder="输入名字：选中时改名，未选中时新增" />
+        <button class="btn-primary" id="saveSpeaker">保存</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="assignSheet">
+      <div class="grabber"></div>
+      <h3 id="assignTitle">批量标识句子</h3>
+      <p class="hint" id="assignHint">勾选要标记的句子</p>
+      <div class="assign-tools">
+        <button class="mini-btn" id="assignAll">全选</button>
+        <button class="mini-btn" id="assignNone">清空</button>
+      </div>
+      <div class="assign-list" id="assignList"></div>
+      <button class="btn-primary" id="assignSave" style="width:100%;margin-top:12px">保存</button>
+    </div>
+
+    <div class="sheet" id="segSheet">
+      <div class="grabber"></div>
+      <h3 id="segTitle">编辑这一句</h3>
+      <p class="hint" id="segHint">00:00 · 可修改说话人和文字内容</p>
+      <div class="topic-wrap" id="segSpeakers"></div>
+      <div class="field">
+        <label>说话人</label>
+        <input id="segWho" type="text" maxlength="12" placeholder="如 郭德纲 / 于谦" />
+      </div>
+      <div class="field">
+        <label>文字内容</label>
+        <textarea id="segText" rows="4" placeholder="纠正转写内容"></textarea>
+      </div>
+      <button class="btn-primary" id="saveSeg" style="width:100%;margin-top:4px">保存修改</button>
+    </div>
+
+    <div class="sheet" id="renameSheet">
+      <div class="grabber"></div>
+      <h3 id="renameTitle">重命名录音</h3>
+      <p class="hint" id="renameHint">给这条录音起个好记的名字</p>
+      <div class="topic-input-row">
+        <input id="renameInput" type="text" maxlength="40" placeholder="录音标题" />
+        <button class="btn-primary" id="saveRename">保存</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="confirmSheet">
+      <div class="grabber"></div>
+      <h3 id="confirmTitle">删除录音</h3>
+      <p class="hint" id="confirmText">删除后不可恢复</p>
+      <div style="display:flex;gap:10px">
+        <button class="mini-btn" id="confirmCancel" style="flex:1;height:44px;border-radius:13px;font-size:13px">取消</button>
+        <button class="btn-primary" id="confirmOk" style="flex:1">删除</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="splash" id="splash">
+      <div class="logo">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3" fill="currentColor" stroke="none"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg>
+      </div>
+      <h2>录音笔记</h2>
+      <p id="splashMsg">正在准备离线模型…</p>
+      <div class="bar"><span id="splashBar"></span></div>
+      <p style="font-size:11.5px;opacity:.75">SenseVoice-Small · 完全离线，录音不上传</p>
+      <button class="mini-btn" id="skipSplash" style="margin-top:4px">稍后再说</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   原生桥
+   ===================================================================== */
+const NATIVE = window.Android || null;
+/* 列表筛选状态 */
+const state = {
+  keyword: '',
+  time: 'all',
+  from: '',
+  to: '',
+  fav: false,
+  untranscribed: false,
+  topic: 'all'
+};
+
+let RECORDINGS = [];
+let MODEL = { ready: false, busy: true, progress: 0, message: '正在准备离线模型…' };
+/* 话题：默认只有「未分类」，其余都来自用户自己添加（存在本机） */
+const TOPIC_KEY = 'rec-topics-v2';
+const BUILTIN_TOPICS = ['会议', '通话', '灵感', '客户', '学习', '导入'];
+let TOPICS = ['未分类'];
+(function loadTopics() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TOPIC_KEY) || '[]');
+    if (Array.isArray(saved)) {
+      saved.forEach((t) => { if (t && TOPICS.indexOf(t) === -1) TOPICS.push(t); });
+    }
+  } catch (e) { /* ignore */ }
+})();
+function saveTopics() {
+  const custom = TOPICS.filter((t) => t !== '未分类');
+  try { localStorage.setItem(TOPIC_KEY, JSON.stringify(custom)); } catch (e) {}
+  /* 同时写进原生：WebView 每次启动端口不同，localStorage 会丢 */
+  if (NATIVE && NATIVE.setTopics) {
+    try { NATIVE.setTopics(JSON.stringify(custom)); } catch (e) {}
+  }
+}
+
+/** 话题总表：内置「未分类」+ 用户添加 + 现有录音里已经用到的 */
+function allTopics() {
+  const set = new Set(['未分类']);
+  TOPICS.forEach((t) => { if (t) set.add(t); });
+  RECORDINGS.forEach((r) => { if (r.topic) set.add(r.topic); });
+  return [...set];
+}
+
+/** 启动时从原生读回话题与配色 */
+function hydrateUiPrefs() {
+  if (!NATIVE || !NATIVE.getUiPrefs) return;
+  try {
+    const p = JSON.parse(NATIVE.getUiPrefs() || '{}');
+    const arr = Array.isArray(p.topics) ? p.topics : [];
+    arr.forEach((t) => { if (t && TOPICS.indexOf(t) === -1) TOPICS.push(t); });
+    if (p.theme && THEMES.some((x) => x.id === p.theme)) applyTheme(p.theme);
+    applyLang(p.lang === 'en' ? 'en' : 'zh');
+  } catch (e) { /* ignore */ }
+}
+
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const byId = (id) => RECORDINGS.find((r) => r.id === id) || null;
+
+function fmt(sec) {
+  sec = Math.max(0, Math.round(sec || 0));
+  return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
+}
+function fmtLong(sec) {
+  sec = Math.max(0, Math.round(sec || 0));
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  return h > 0 ? h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
+               : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+function seededHeights(seed, count) {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    h ^= h << 13; h ^= h >>> 17; h ^= h << 5;
+    const n = Math.abs(h % 1000) / 1000;
+    const env = 0.42 + 0.58 * Math.sin((i / count) * Math.PI);
+    out.push(0.18 + 0.82 * Math.pow(n, 0.75) * env);
+  }
+  return out;
+}
+/* 用真实音频包络画波形，没有就从 id 生成 */
+function waveHeights(rec, count) {
+  if (rec && rec.env && rec.env.length > 4) {
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const idx = Math.min(rec.env.length - 1, Math.floor(i * rec.env.length / count));
+      out.push(0.10 + (rec.env[idx] / 100) * 0.90);
+    }
+    return out;
+  }
+  return seededHeights(rec ? rec.id : 'x', count);
+}
+let toastTimer = null;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+/* ============================ Markdown ============================ */
+function mdToHtml(src) {
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const inline = (s) => esc(s)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/~~([^~]+)~~/g, '<del>$1</del>')
+    .replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+
+  const lines = String(src || '').replace(/\r\n?/g, '\n').split('\n');
+  let out = '', listType = null, inCode = false, codeBuf = [];
+  const closeList = () => { if (listType) { out += '</' + listType + '>'; listType = null; } };
+  const openList = (type, cls) => {
+    if (listType === type) return;
+    closeList();
+    out += '<' + type + (cls ? ' class="' + cls + '"' : '') + '>';
+    listType = type;
+  };
+
+  for (const raw of lines) {
+    const line = raw.replace(/\s+$/, '');
+    if (/^```/.test(line)) {
+      if (!inCode) { closeList(); inCode = true; codeBuf = []; }
+      else { out += '<pre><code>' + esc(codeBuf.join('\n')) + '</code></pre>'; inCode = false; }
+      continue;
+    }
+    if (inCode) { codeBuf.push(raw); continue; }
+    if (!line.trim()) { closeList(); continue; }
+
+    let m;
+    if ((m = line.match(/^(#{1,6})\s+(.*)$/))) {
+      closeList();
+      out += '<p class="md-h' + Math.min(3, m[1].length) + '">' + inline(m[2]) + '</p>';
+      continue;
+    }
+    if (/^[\s\-*_]+$/.test(line) && /^\s*([-*_])\s*\1\s*\1/.test(line)) {
+      closeList(); out += '<hr />'; continue;
+    }
+    if (/^>\s?/.test(line)) {
+      closeList(); out += '<blockquote><p>' + inline(line.replace(/^>\s?/, '')) + '</p></blockquote>'; continue;
+    }
+    if ((m = line.match(/^\s*[-*+]\s+\[([ xX])\]\s+(.*)$/))) {
+      openList('ul', 'plain');
+      const done = m[1].toLowerCase() === 'x';
+      out += '<li class="task' + (done ? ' done' : '') + '"><span class="box">' + (done ? '✓' : '') +
+             '</span><span class="t">' + inline(m[2]) + '</span></li>';
+      continue;
+    }
+    if ((m = line.match(/^\s*[-*+]\s+(.*)$/))) {
+      openList('ul', ''); out += '<li>' + inline(m[1]) + '</li>'; continue;
+    }
+    if ((m = line.match(/^\s*(\d+)[.)]\s+(.*)$/))) {
+      openList('ol', ''); out += '<li>' + inline(m[2]) + '</li>'; continue;
+    }
+    closeList();
+    out += '<p>' + inline(line) + '</p>';
+  }
+  if (inCode && codeBuf.length) out += '<pre><code>' + esc(codeBuf.join('\n')) + '</code></pre>';
+  closeList();
+  return out;
+}
+
+function buildMd(rec) {
+  const L = [];
+  L.push('# ' + rec.title);
+  L.push('');
+  L.push('> ' + [rec.dateLabel + ' ' + rec.time, fmtLong(rec.duration), rec.size, rec.lang].join(' · '));
+  L.push('');
+  L.push('## 摘要');
+  L.push('');
+  L.push(cleanSummary(rec.summary) || '（暂无摘要）');
+  L.push('');
+  L.push('## 逐字稿');
+  L.push('');
+  (rec.transcript || []).forEach((s) => {
+    L.push('**' + fmt(s.t) + ' · ' + s.who + '**');
+    L.push('');
+    L.push(s.text);
+    if (s.tr) {
+      L.push('');
+      L.push('> ' + s.tr);
+    }
+    L.push('');
+  });
+  return L.join('\n');
+}
+
+/* ============================ 主题 ============================ */
+const THEMES = [
+  { id: 'graphite', name: '中心灰', bg: '#2B2F35', bar: '#85AEF4' },
+  { id: 'ivory',    name: '米白',   bg: '#F7F4EC', bar: '#35597F' },
+  { id: 'bean',     name: '豆沙绿', bg: '#DCE5D2', bar: '#4A6F44' },
+  { id: 'paper',    name: '纸张色', bg: '#F0E6D2', bar: '#A44F28' }
+];
+const THEME_KEY = 'rec-theme-v3';
+
+function applyTheme(id) {
+  document.documentElement.setAttribute('data-theme', id);
+  try { localStorage.setItem(THEME_KEY, id); } catch (e) {}
+  if (NATIVE && NATIVE.setTheme) {
+    try { NATIVE.setTheme(id); } catch (e) {}
+  }
+  $$('.theme-opt').forEach((el) => el.classList.toggle('active', el.dataset.theme === id));
+  /* 让系统状态栏图标跟随深浅底色 */
+  if (NATIVE && NATIVE.setSystemTheme) {
+    try { NATIVE.setSystemTheme(id === 'graphite' ? 'dark' : 'light'); } catch (e) {}
+  }
+}
+function buildThemeGrid() {
+  const grid = $('#themeGrid');
+  grid.innerHTML = '';
+  THEMES.forEach((t) => {
+    const btn = document.createElement('button');
+    btn.className = 'theme-opt';
+    btn.dataset.theme = t.id;
+    /* 横排四色块：每块就是该主题的底色，中间一颗点缀色圆点 */
+    btn.innerHTML =
+      '<span class="swatch" style="background:' + t.bg + '">' +
+        '<i style="background:' + t.bar + '"></i>' +
+      '</span><small>' + t.name + '</small>';
+    btn.addEventListener('click', () => {
+      applyTheme(t.id);
+      toast('已切换到「' + t.name + '」');
+      closeDrawer();   /* 选完自动收起设置抽屉 */
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function openDrawer() {
+  $('#drawer').classList.add('show');
+  $('#backdrop').classList.add('show');
+}
+
+function closeDrawer() {
+  $('#drawer').classList.remove('show');
+  if (!document.querySelector('.sheet.show')) $('#backdrop').classList.remove('show');
+}
+
+/* ============================ 语言 ============================ */
+let LANG = 'zh';
+const I18N = {
+  zh: { settings: '设置', lang: '语言', theme: '界面配色', open: '打开', openSub: '本地音频', trash: '回收站' },
+  en: { settings: 'Settings', lang: 'Language', theme: 'Theme', open: 'Open', openSub: 'Local audio', trash: 'Trash' }
+};
+
+function applyLang(l) {
+  LANG = l === 'en' ? 'en' : 'zh';
+  const t = I18N[LANG];
+  document.documentElement.setAttribute('lang', LANG === 'en' ? 'en' : 'zh-CN');
+  $$('#langSeg button').forEach((b) => b.classList.toggle('active', b.dataset.lang === LANG));
+  const head = document.querySelector('.drawer-head span');
+  if (head) head.textContent = t.settings;
+  const setTxt = (id, txt) => { const el = $('#' + id); if (el) el.textContent = txt; };
+  setTxt('langLabel', t.lang);
+  setTxt('themeLabel', t.theme);
+  setTxt('openLocalTxt', t.open);
+  setTxt('openLocalSub', t.openSub);
+  setTxt('trashTxt', t.trash);
+  try { localStorage.setItem('rec-lang', LANG); } catch (e) {}
+  if (NATIVE && NATIVE.setLang) {
+    try { NATIVE.setLang(LANG); } catch (e) {}
+  }
+}
+
+/* 屏幕左边缘右滑打开设置（不与卡片的左滑冲突） */
+(function bindDrawerEdgeSwipe() {
+  let sx = 0, sy = 0, tracking = false;
+  const EDGE = 34;
+  document.addEventListener('pointerdown', (e) => {
+    if (e.clientX > EDGE) return;
+    if ($('#drawer').classList.contains('show')) return;
+    if ($('.sheet.show')) return;
+    tracking = true;
+    sx = e.clientX;
+    sy = e.clientY;
+  }, true);
+  document.addEventListener('pointermove', (e) => {
+    if (!tracking) return;
+    const dx = e.clientX - sx;
+    const dy = e.clientY - sy;
+    if (Math.abs(dy) > 40 && Math.abs(dy) > dx) { tracking = false; return; }
+    if (dx > 52) { tracking = false; openDrawer(); }
+  }, true);
+  const stop = () => { tracking = false; };
+  document.addEventListener('pointerup', stop, true);
+  document.addEventListener('pointercancel', stop, true);
+})();
+
+function isoOf(rec) {
+  const d = new Date(rec.createdAt || Date.now());
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function inTimeRange(iso) {
+  if (state.time === 'all') return true;
+  const now = new Date();
+  const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+  if (state.time === 'today') return iso === today;
+  if (state.time === '7d') {
+    const d = new Date(now.getTime() - 6 * 86400000);
+    return iso >= d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  if (state.time === 'month') return iso >= today.slice(0, 8) + '01';
+  if (state.time === 'custom') {
+    const okFrom = !state.from || iso >= state.from;
+    const okTo = !state.to || iso <= state.to;
+    return okFrom && okTo;
+  }
+  return true;
+}
+function rangeLabel() {
+  const f = state.from ? state.from.slice(5).replace('-', '.') : '最早';
+  const t = state.to ? state.to.slice(5).replace('-', '.') : '至今';
+  return f + '–' + t;
+}
+/** 搜索用的归一化：去掉空格与全角空格，忽略大小写 */
+function normText(s) {
+  return String(s || '').toLowerCase().replace(/[\s\u3000]+/g, '');
+}
+
+function matches(rec) {
+  const kwRaw = String(state.keyword || '').trim();
+  if (kwRaw) {
+    const kw = normText(kwRaw);
+    const hay = normText([
+      rec.title, rec.topic, rec.summary, stampOf(rec), rec.time, rec.dateLabel,
+      (rec.transcript || []).map((s) => (s.text || '') + ' ' + (s.tr || '') + ' ' + (s.who || '')).join(' ')
+    ].join(' '));
+    if (kw && !hay.includes(kw)) return false;
+  }
+  if (!inTimeRange(isoOf(rec))) return false;
+  if (state.fav && !rec.fav) return false;
+  if (state.untranscribed && rec.status === 'done') return false;
+  if (state.topic !== 'all' && rec.topic !== state.topic) return false;
+  return true;
+}
+function hasActiveFilter() {
+  return state.time !== 'all' || state.fav || state.untranscribed || state.topic !== 'all';
+}
+const CARET = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+
+function renderChips() {
+  const box = $('#chips');
+  const timeLabel = state.time === 'all' ? '时间'
+    : (state.time === 'custom' ? rangeLabel() : (TIME_RANGES.find((t) => t.id === state.time) || {}).label);
+  const topicLabel = state.topic === 'all' ? '话题' : '#' + state.topic;
+  box.innerHTML = '';
+  const mk = (html, active, onClick, ghost) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (active ? ' active' : '') + (ghost ? ' ghost' : '');
+    b.innerHTML = html;
+    b.addEventListener('click', onClick);
+    box.appendChild(b);
+  };
+  mk(timeLabel + CARET, state.time !== 'all', () => openFilter('time'));
+  mk('收藏', state.fav, () => { state.fav = !state.fav; renderAll(); });
+  mk('未转写', state.untranscribed, () => { state.untranscribed = !state.untranscribed; renderAll(); });
+  mk(topicLabel + CARET, state.topic !== 'all', () => openFilter('topic'));
+  if (hasActiveFilter()) mk('重置', false, () => {
+    state.time = 'all'; state.from = ''; state.to = '';
+    state.fav = false; state.untranscribed = false; state.topic = 'all';
+    renderAll(); toast('已清除筛选');
+  }, true);
+}
+
+/* ============================ 列表 ============================ */
+function badgeOf(rec) {
+  if (rec.status === 'processing') return '<span class="badge pending">转写中 ' + (rec.progress || 0) + '%</span>';
+  if (rec.status === 'done') return '<span class="badge">已转写</span>';
+  /* 未转写：这里直接做成按钮，点它才开始转写 */
+  return '<button class="badge none act-transcribe">开始转写</button>';
+}
+
+function renderList() {
+  const wrap = $('#recList');
+  const items = RECORDINGS.filter(matches);
+  wrap.innerHTML = '';
+  if (!items.length) {
+    wrap.innerHTML = '<div class="empty">还没有录音<br /><span style="font-size:12px;opacity:.8">点右下角开始录音，或用右上角导入本地音频</span></div>';
+    return;
+  }
+  let last = null;
+  items.forEach((rec) => {
+    if (rec.dateLabel !== last) {
+      last = rec.dateLabel;
+      const d = document.createElement('div');
+      d.className = 'date-label';
+      d.textContent = rec.dateLabel;
+      wrap.appendChild(d);
+    }
+    const media = rec.status === 'done'
+      ? '<div class="mini-wave">' + waveHeights(rec, 46).map((h) => '<i style="height:' + Math.round(h * 28) + 'px"></i>').join('') + '</div>'
+      : '<div class="progress-line"><span style="width:' + (rec.status === 'processing' ? Math.max(6, rec.progress || 0) : 0) + '%"></span></div>';
+
+    const swipe = document.createElement('div');
+    swipe.className = 'swipe-wrap';
+    swipe.innerHTML =
+      '<div class="swipe-actions">' +
+        '<button class="sw-act fav' + (rec.fav ? ' on' : '') + '" data-act="fav">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="' + (rec.fav ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3.6 2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.9-5.2 2.9 1-5.9L3.5 9.8l5.9-.8z"/></svg>' +
+          (rec.fav ? '已收藏' : '收藏') +
+        '</button>' +
+        '<button class="sw-act" data-act="rename">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L20 8l-4-4L4 16v4Z"/></svg>重命名' +
+        '</button>' +
+        '<button class="sw-act del" data-act="del">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>删除' +
+        '</button>' +
+      '</div>';
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<div class="card-head">' +
+        '<div style="min-width:0">' +
+          '<p class="card-title">' + escapeHtml(rec.title) + '</p>' +
+          '<p class="card-sub">' +
+            '<span>' + stampOf(rec) + '</span><span class="dot"></span>' +
+            '<span>' + fmtLong(rec.duration) + '</span><span class="dot"></span>' +
+            '<span>' + (rec.size || '—') + '</span><span class="dot"></span>' +
+            '<span style="color:var(--accent)">#' + escapeHtml(rec.topic) + '</span>' +
+            (rec.fav ? '<span class="dot"></span><span style="color:var(--accent)">★</span>' : '') +
+          '</p>' +
+        '</div>' + badgeOf(rec) +
+      '</div>' + media +
+      '<span class="check">' + (selIds.has(rec.id) ? CHECK_SVG : '') + '</span>';
+    if (selMode) card.classList.toggle('selected', selIds.has(rec.id));
+    /* 卡片右上角「开始转写」按钮：点它才转，不自动转 */
+    const tb = card.querySelector('.act-transcribe');
+    if (tb) {
+      tb.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (selMode) return;
+        startTranscribe(rec);
+      });
+      tb.addEventListener('pointerdown', (e) => e.stopPropagation());
+    }
+    swipe.appendChild(card);
+    bindCardGesture(swipe, card, rec);
+    wrap.appendChild(swipe);
+  });
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function renderAll() {
+  renderChips();
+  renderList();
+  const done = RECORDINGS.filter((r) => r.status === 'done').length;
+  $('#listSub').textContent = '共 ' + RECORDINGS.length + ' 条录音 · ' + done + ' 条已转写';
+}
+
+/* ============================ 面板 ============================ */
+function openSheet(el) {
+  $('#backdrop').classList.add('show');
+  el.classList.add('show');
+}
+function closeSheets() {
+  $('#backdrop').classList.remove('show');
+  $$('.sheet').forEach((s) => s.classList.remove('show'));
+}
+function openFilter(kind) {
+  const isTime = kind === 'time';
+  const list = isTime ? TIME_RANGES : [{ id: 'all', label: '全部话题' }].concat(allTopics().map((t) => ({ id: t, label: '#' + t })));
+  const cur = isTime ? state.time : state.topic;
+  $('#fsTitle').textContent = isTime ? '按时间筛选' : '按话题筛选';
+  $('#fsHint').textContent = isTime ? '可选用预设区间，或在下方指定起止日期' : '选择话题标签，可与其它筛选叠加';
+  const box = $('#fsList');
+  box.innerHTML = '';
+  list.forEach((opt) => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (cur === opt.id ? ' on' : '');
+    b.innerHTML = '<span>' + escapeHtml(opt.label) + '</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>';
+    b.addEventListener('click', () => {
+      if (isTime) { state.time = opt.id; if (opt.id === 'all') { state.from = ''; state.to = ''; } }
+      else state.topic = opt.id;
+      renderAll();
+      closeSheets();
+    });
+    box.appendChild(b);
+  });
+  const custom = $('#fsCustom');
+  custom.hidden = !isTime;
+  if (isTime) {
+    const f = $('#fromDate'), t = $('#toDate');
+    f.value = state.from || '';
+    t.value = state.to || '';
+    f.max = t.max = isoOf({ createdAt: Date.now() });
+  }
+  openSheet($('#filterSheet'));
+}
+
+/* ============================ 播放 ============================ */
+const SPEEDS = [0.5, 0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0];
+const BAR_COUNT = 56;
+const play = { rec: null, audio: null, elapsed: 0, playing: false, rate: 1, bars: [], autoScroll: true };
+let currentMd = '';
+
+function stopAudio() {
+  if (play.audio) {
+    try { play.audio.pause(); } catch (e) {}
+    play.audio.src = '';
+    play.audio = null;
+  }
+  play.playing = false;
+}
+function ensureAudio() {
+  if (play.audio || !play.rec || !play.rec.url) return;
+  const a = new Audio(play.rec.url);
+  a.preload = 'metadata';
+  a.playbackRate = play.rate;
+  a.addEventListener('timeupdate', () => { play.elapsed = a.currentTime; paintProgress(); });
+  a.addEventListener('loadedmetadata', () => { if (a.duration && isFinite(a.duration)) { play.rec.duration = a.duration; } paintProgress(); });
+  a.addEventListener('ended', () => { setPlaying(false); });
+  play.audio = a;
+}
+function updatePlayIcon() {
+  $('#playIcon').innerHTML = play.playing
+    ? '<rect x="7" y="5" width="3.6" height="14" rx="1.4"/><rect x="13.4" y="5" width="3.6" height="14" rx="1.4"/>'
+    : '<path d="M8 5.2c0-.8.9-1.3 1.6-.9l9 6.8c.6.4.6 1.3 0 1.8l-9 6.8c-.7.4-1.6-.1-1.6-.9V5.2Z"/>';
+}
+function setPlaying(on) {
+  if (on) ensureAudio();
+  if (on && !play.audio) on = false;
+  play.playing = on;
+  updatePlayIcon();
+  if (!play.audio) return;
+  if (on) {
+    play.audio.playbackRate = play.rate;
+    play.audio.play().catch(() => { play.playing = false; updatePlayIcon(); });
+  } else {
+    play.audio.pause();
+  }
+}
+function seekTo(sec) {
+  play.elapsed = Math.max(0, Math.min(play.rec ? play.rec.duration : 0, sec));
+  if (play.audio) { try { play.audio.currentTime = play.elapsed; } catch (e) {} }
+  paintProgress();
+}
+
+function renderWave() {
+  const wave = $('#wave');
+  wave.innerHTML = '';
+  play.bars = waveHeights(play.rec, BAR_COUNT).map((h) => {
+    const i = document.createElement('i');
+    i.style.height = Math.round(6 + h * 54) + 'px';
+    wave.appendChild(i);
+    return i;
+  });
+  paintProgress();
+}
+function paintProgress() {
+  const total = play.rec ? (play.rec.duration || 0) : 0;
+  const ratio = total > 0 ? Math.min(1, play.elapsed / total) : 0;
+  const upto = Math.round(ratio * BAR_COUNT);
+  play.bars.forEach((b, i) => b.classList.toggle('played', i < upto));
+  $('#curTime').textContent = fmt(play.elapsed);
+  $('#totTime').textContent = fmt(total);
+  syncTranscript();
+}
+function syncTranscript() {
+  const segs = $$('#transcript .seg');
+  if (!segs.length || !play.rec) return;
+  let idx = -1;
+  (play.rec.transcript || []).forEach((s, i) => { if (play.elapsed + 0.35 >= s.t) idx = i; });
+  segs.forEach((el, i) => el.classList.toggle('active', i === idx));
+  if (idx >= 0 && play.autoScroll && !$('#textPane').hidden) {
+    const el = segs[idx];
+    const body = $('#detailBody');
+    const top = el.offsetTop - 130;
+    if (Math.abs(body.scrollTop - top) > 26) body.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }
+}
+
+/* ============================ 详情 ============================ */
+/* 翻译视图状态：false=原文，true=译文 */
+const trState = { show: false, busy: false };
+
+function hasCJK(s) {
+  return /[\u4e00-\u9fff]/.test(String(s || ''));
+}
+
+function toggleTranslate(rec) {
+  if (!rec) return;
+  const segs = rec.transcript || [];
+  if (!segs.length) { toast('还没有转写内容'); return; }
+
+  if (trState.show) {
+    trState.show = false;
+    renderTranscript();
+    renderTags(rec);
+    return;
+  }
+
+  const missing = segs.filter((s) => !s.tr).length;
+  if (missing > 0) {
+    if (!NATIVE || !NATIVE.translateRecord) {
+      toast('当前环境不支持翻译');
+      return;
+    }
+    /* 模型还没下载：先确认（1.08 GB） */
+    let ready = true;
+    try {
+      if (NATIVE.getTranslateState) ready = !!JSON.parse(NATIVE.getTranslateState()).ready;
+    } catch (e) { /* ignore */ }
+    if (!ready) {
+      pendingTranslateId = rec.id;
+      openSheet($('#mtSheet'));
+      return;
+    }
+    startNativeTranslate(rec);
+    return;
+  }
+
+  trState.show = true;
+  renderTranscript();
+  renderTags(rec);
+  toast('已切换到译文');
+}
+
+let pendingTranslateId = null;
+
+function setTranslateBusyLabel(txt) {
+  const btn = document.querySelector('#detailTags .tag.translate');
+  if (!btn) return;
+  if (btn.lastChild && btn.lastChild.nodeType === 3) btn.lastChild.textContent = txt;
+  else btn.appendChild(document.createTextNode(txt));
+}
+
+function startNativeTranslate(rec) {
+  trState.busy = true;
+  renderTags(rec);
+  closeSheets();
+  setTranslateBusyLabel('翻译中…');
+  try {
+    NATIVE.translateRecord(rec.id);
+  } catch (e) {
+    trState.busy = false;
+    renderTags(rec);
+    toast('翻译启动失败');
+  }
+}
+
+function applyTranslated(rec) {
+  trState.busy = false;
+  trState.show = true;
+  renderTranscript();
+  renderTags(rec);
+  toast('翻译完成');
+}
+
+function renderTranscript() {
+  const box = $('#transcript');
+  box.innerHTML = '';
+  const tip = $('#transHint');
+  if (tip) tip.textContent = trState.show ? '逐字稿 · 原文 + 译文' : '逐字稿';
+  const tr = (play.rec && play.rec.transcript) || [];
+  if (!tr.length) {
+    const busy = play.rec && play.rec.status === 'processing';
+    box.innerHTML = '<div class="empty-transcript">' +
+      (busy ? '正在离线转写…<br /><span style="font-size:12px">' + escapeHtml((play.rec.progress || 0) + '%') + '</span>'
+            : '这条录音还没有转写<br /><span style="font-size:12px">本地 SenseVoice-Small 离线转写，不上传录音</span>') +
+      (busy ? '' : '<br /><button id="doTranscribe">开始转写</button>') +
+      '</div>';
+    const btn = $('#doTranscribe');
+    if (btn) btn.addEventListener('click', () => startTranscribe(play.rec));
+    return;
+  }
+  tr.forEach((seg, idx) => {
+    const el = document.createElement('div');
+    el.className = 'seg';
+    el.innerHTML = '<div class="ts">' + fmt(seg.t) + '</div>' +
+      '<div style="min-width:0">' +
+        '<div class="who-row">' +
+          '<span class="who" data-who="' + escapeHtml(seg.who) + '">' + escapeHtml(seg.who) +
+            '<svg class="who-edit" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L20 8l-4-4L4 16v4Z"/></svg>' +
+          '</span>' +
+          '<button class="seg-edit-btn" aria-label="编辑这一句">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L20 8l-4-4L4 16v4Z"/></svg>' +
+          '</button>' +
+        '</div>' +
+        '<div class="txt">' + escapeHtml(seg.text) + '</div>' +
+        (trState.show && seg.tr
+          ? '<div class="tr-text">' + escapeHtml(seg.tr) + '</div>'
+          : '') +
+      '</div>';
+    el.addEventListener('click', () => {
+      if (segLongPress) { segLongPress = false; return; }
+      play.autoScroll = true;
+      seekTo(seg.t);
+      if (!play.playing) setPlaying(true);
+    });
+    el.querySelector('.who').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSpeakerEditor(play.rec, seg.who);
+    });
+    el.querySelector('.seg-edit-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSegEditor(idx);
+    });
+    /* 长按整句也能编辑 */
+    let segTimer = null;
+    el.addEventListener('pointerdown', () => {
+      segLongPress = false;
+      clearTimeout(segTimer);
+      segTimer = setTimeout(() => {
+        segLongPress = true;
+        try { if (navigator.vibrate) navigator.vibrate(10); } catch (err) {}
+        openSegEditor(idx);
+      }, 450);
+    });
+    const cancelLong = () => clearTimeout(segTimer);
+    el.addEventListener('pointerup', cancelLong);
+    el.addEventListener('pointercancel', cancelLong);
+    el.addEventListener('pointermove', cancelLong);
+    box.appendChild(el);
+  });
+  syncTranscript();
+}
+
+/** 去掉旧数据里自带的「离线转写（...）：」前缀 */
+function cleanSummary(text) {
+  return String(text || '')
+    .replace(/^\s*\*\*离线转写\*\*\s*（[^）]*）\s*[:：]\s*/, '')
+    .replace(/^\s*离线转写\s*（[^）]*）\s*[:：]\s*/, '')
+    .replace(/^\s*\*\*离线转写\*\*\s*[:：]\s*/, '')
+    .trim();
+}
+
+function renderSummary() {
+  const rec = play.rec;
+  if (!rec) return;
+  const body = cleanSummary(rec.summary) || '（本条录音尚未生成摘要）';
+  $('#sumMd').innerHTML = mdToHtml(body);
+}
+function renderMd() {
+  if (!play.rec) {
+    currentMd = '';
+    const box = $('#mdView');
+    if (box) box.innerHTML = '';
+    return;
+  }
+  currentMd = buildMd(play.rec);
+  $('#mdView').innerHTML = mdToHtml(currentMd);
+}
+
+const STAR_OFF = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3.6 2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.9-5.2 2.9 1-5.9L3.5 9.8l5.9-.8z"/></svg>';
+const STAR_ON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="m12 3.6 2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.9-5.2 2.9 1-5.9L3.5 9.8l5.9-.8z"/></svg>';
+
+function renderTags(rec) {
+  const box = $('#detailTags');
+  box.innerHTML = '';
+
+  const topic = document.createElement('button');
+  topic.className = 'tag topic';
+  topic.innerHTML = '#' + escapeHtml(rec.topic) +
+    '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.55"><path d="M4 20h4L20 8l-4-4L4 16v4Z"/></svg>';
+  topic.addEventListener('click', () => openTopicEditor(rec));
+  box.appendChild(topic);
+
+  /* 说话人管理入口统一放在逐字稿里：点某句的说话人名字即可进入 */
+
+  /* 翻译：在原文 / 译文之间切换（中英互译，腾讯 HY-MT1.5-1.8B） */
+  const tr = document.createElement('button');
+  tr.className = 'tag action translate' + (trState.show ? ' on' : '');
+  tr.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11M9.5 5v2.5c0 4-2 7.2-5 9"/><path d="M6.6 11.5c1.1 2.3 3.4 4 6.4 5"/><path d="M13.5 20l4-10 4 10M15 16.6h5"/></svg>' +
+    (trState.busy ? '翻译中…' : (trState.show ? '原文' : '翻译'));
+  if (trState.busy) tr.style.opacity = '.6';
+  tr.addEventListener('click', () => {
+    if (trState.busy) return;
+    toggleTranslate(rec);
+  });
+  box.appendChild(tr);
+
+  const fav = document.createElement('button');
+  fav.className = 'tag fav' + (rec.fav ? ' on' : '');
+  fav.innerHTML = (rec.fav ? STAR_ON : STAR_OFF) + '<span>' + (rec.fav ? '已收藏' : '收藏') + '</span>';
+  fav.addEventListener('click', () => {
+    rec.fav = !rec.fav;
+    renderTags(rec);
+    renderList();
+    if (NATIVE) NATIVE.patch(rec.id, JSON.stringify({ fav: rec.fav }));
+    toast(rec.fav ? '已加入收藏' : '已取消收藏');
+  });
+  box.appendChild(fav);
+
+  if (rec.status === 'processing') {
+    const st = document.createElement('span');
+    st.className = 'tag status busy';
+    st.innerHTML = '<i class="spin"></i>转写中 ' + (rec.progress || 0) + '%';
+    box.appendChild(st);
+  } else {
+    const re = document.createElement('button');
+    re.className = 'tag action';
+    re.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.5 4v5h-5"/></svg>' +
+      (rec.status === 'done' ? '重新转写' : '开始转写');
+    re.addEventListener('click', () => startTranscribe(rec));
+    box.appendChild(re);
+  }
+}
+
+function startTranscribe(rec) {
+  if (!rec || rec.status === 'processing') return;
+  rec.status = 'processing';
+  rec.progress = 0;
+  renderTags(rec);
+  renderList();
+  if (play.rec && play.rec.id === rec.id) renderTranscript();
+  toast('已开始离线转写…');
+  if (NATIVE) NATIVE.transcribe(rec.id);
+}
+
+function buildSpeedPop() {
+  const pop = $('#speedPop');
+  pop.innerHTML = '';
+  SPEEDS.forEach((s) => {
+    const b = document.createElement('button');
+    b.className = 's-opt' + (Math.abs(play.rate - s) < 0.001 ? ' active' : '');
+    b.textContent = s === 1.0 ? '原速' : s.toFixed(1) + '×';
+    b.dataset.rate = s;
+    b.addEventListener('click', () => {
+      play.rate = s;
+      $('#speedBtn').textContent = s.toFixed(1) + '×';
+      $$('#speedPop .s-opt').forEach((x) => x.classList.toggle('active', Number(x.dataset.rate) === s));
+      pop.classList.remove('show');
+      if (play.audio) play.audio.playbackRate = s;
+    });
+    pop.appendChild(b);
+  });
+}
+
+function openDetail(rec) {
+  stopAudio();
+  /* 每条录音独立：默认看原文 */
+  trState.show = false;
+  trState.busy = false;
+  play.rec = rec;
+  play.elapsed = 0;
+  play.rate = 1;
+  play.autoScroll = true;
+  $('#speedBtn').textContent = '1.0×';
+  $('#speedPop').classList.remove('show');
+
+  $('#dTitle').textContent = rec.title;
+  $('#dMeta').textContent = [
+    stampOf(rec),
+    fmtLong(rec.duration),
+    rec.size,
+    rec.lang || '自动识别',
+    (rec.speakers || 1) + ' 位说话人'
+  ].join(' · ');
+
+  renderWave();
+  renderTranscript();
+  renderSummary();
+  renderMd();
+  renderTags(rec);
+  buildSpeedPop();
+  updatePlayIcon();
+  switchTab('text');
+
+  $('#listView').classList.add('hidden');
+  $('#detailView').classList.add('shown');
+  $('#detailBody').scrollTop = 0;
+}
+function closeDetail() {
+  stopAudio();
+  $('#detailView').classList.remove('shown');
+  $('#listView').classList.remove('hidden');
+  play.rec = null;
+}
+function switchTab(name) {
+  $$('#segTabs button').forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
+  $('#textPane').hidden = name !== 'text';
+  $('#summaryPane').hidden = name !== 'summary';
+  $('#mdPane').hidden = name !== 'md';
+}
+
+/* ============================ 单句编辑 ============================ */
+let editingSegIndex = -1;
+let segLongPress = false;
+
+function openSegEditor(index) {
+  const rec = play.rec;
+  if (!rec || !rec.transcript || !rec.transcript[index]) return;
+  editingSegIndex = index;
+  const seg = rec.transcript[index];
+  $('#segHint').textContent = fmt(seg.t) + ' · 可修改说话人和文字内容';
+  $('#segWho').value = seg.who || '说话人 1';
+  $('#segText').value = seg.text || '';
+
+  const box = $('#segSpeakers');
+  box.innerHTML = '';
+  speakerStats(rec).forEach(([who, count]) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (seg.who === who ? ' active' : '');
+    b.textContent = who + ' · ' + count + ' 句';
+    b.addEventListener('click', () => {
+      $('#segWho').value = who;
+      [...box.children].forEach((c) => c.classList.remove('active'));
+      b.classList.add('active');
+    });
+    box.appendChild(b);
+  });
+
+  openSheet($('#segSheet'));
+  setTimeout(() => {
+    const t = $('#segText');
+    t.focus();
+    t.setSelectionRange(t.value.length, t.value.length);
+  }, 200);
+}
+
+function saveSegEdit() {
+  const rec = play.rec;
+  if (!rec || editingSegIndex < 0 || !rec.transcript[editingSegIndex]) return;
+  const who = String($('#segWho').value || '').trim() || '说话人 1';
+  const text = String($('#segText').value || '').trim();
+  if (!text) { toast('内容不能为空'); return; }
+  const seg = rec.transcript[editingSegIndex];
+  const oldWho = seg.who;
+  if (seg.text !== text) {
+    /* 原文改了，旧的译文作废，下次点翻译会重新生成 */
+    delete seg.tr;
+    delete seg.trSrc;
+  }
+  seg.who = who;
+  seg.text = text;
+  const pool = Array.isArray(rec.speakerPool) ? rec.speakerPool.slice() : [];
+  if (!pool.includes(who)) pool.push(who);
+  rec.speakerPool = pool;
+  closeSheets();
+  /* 整段只有这一句属于旧说话人时，等于给这把声音改名，同步档案 */
+  const left = (rec.transcript || []).filter((s) => s.who === oldWho).length;
+  persistSpeakers(rec, left === 0 ? oldWho : null, left === 0 ? who : null);
+  editingSegIndex = -1;
+  toast('这一句已更新');
+}
+
+/* ============================ 话题 / 说话人 ============================ */
+let editingTopicRec = null;
+function openTopicEditor(rec) {
+  editingTopicRec = rec;
+  const box = $('#topicChips');
+  box.innerHTML = '';
+  allTopics().forEach((t) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (rec.topic === t ? ' active' : '');
+    b.textContent = '#' + t;
+    b.addEventListener('click', () => applyTopic(t));
+    box.appendChild(b);
+  });
+  $('#topicInput').value = '';
+  openSheet($('#topicSheet'));
+}
+function updateTrashCount(n) {
+  const el = $('#trashCount');
+  if (el) el.textContent = n > 0 ? String(n) : '';
+}
+
+/** 一次性把旧的内置话题统一改成「未分类」 */
+function migrateTopics() {
+  let done = false;
+  try { done = localStorage.getItem('rec-topics-migrated') === '1'; } catch (e) {}
+  if (done) return;
+  let changed = 0;
+  RECORDINGS.forEach((r) => {
+    if (BUILTIN_TOPICS.indexOf(r.topic) >= 0) {
+      r.topic = '未分类';
+      changed++;
+      if (NATIVE) NATIVE.patch(r.id, JSON.stringify({ topic: '未分类' }));
+    }
+  });
+  try { localStorage.setItem('rec-topics-migrated', '1'); } catch (e) {}
+  if (changed) renderAll();
+}
+
+function openTrash() {
+  closeDrawer();
+  setTimeout(() => {
+    openSheet($('#trashSheet'));
+    refreshTrash();
+  }, 170);
+}
+
+function refreshTrash() {
+  const box = $('#trashList');
+  if (!box) return;
+  let list = [];
+  try { list = JSON.parse((NATIVE && NATIVE.listTrash ? NATIVE.listTrash() : '[]') || '[]'); } catch (e) { list = []; }
+  box.innerHTML = '';
+  updateTrashCount(list.length);
+  if (!list.length) {
+    box.innerHTML = '<div class="audio-empty">回收站是空的</div>';
+    return;
+  }
+  list.forEach((t) => {
+    const row = document.createElement('div');
+    row.className = 'audio-row trash-row';
+    row.innerHTML = '<span class="nm">' + escapeHtml(t.title || '未命名') + '</span>' +
+      '<span class="meta">' + fmtLong(t.duration || 0) + '</span>';
+    const b1 = document.createElement('button');
+    b1.className = 'mini-btn';
+    b1.textContent = '恢复';
+    b1.addEventListener('click', () => {
+      if (NATIVE) NATIVE.restoreRecord(t.id);
+      toast('已恢复「' + (t.title || '') + '」');
+      setTimeout(refreshTrash, 260);
+    });
+    const b2 = document.createElement('button');
+    b2.className = 'mini-btn';
+    b2.textContent = '彻底删除';
+    b2.addEventListener('click', () => {
+      if (NATIVE) NATIVE.purgeRecord(t.id);
+      toast('已彻底删除');
+      setTimeout(refreshTrash, 260);
+    });
+    row.appendChild(b1);
+    row.appendChild(b2);
+    box.appendChild(row);
+  });
+}
+
+function applyTopic(raw) {
+  const t = String(raw || '').trim().replace(/^#+/, '');
+  if (!t) { toast('请输入话题名称'); return; }
+  if (!editingTopicRec) return;
+  editingTopicRec.topic = t;
+  if (TOPICS.indexOf(t) === -1) { TOPICS.push(t); saveTopics(); }
+  renderTags(editingTopicRec);
+  renderAll();
+  closeSheets();
+  if (NATIVE) NATIVE.patch(editingTopicRec.id, JSON.stringify({ topic: t }));
+  toast('话题已更新为 #' + t);
+}
+
+let editingSpeakersRec = null, selectedSpeaker = null;
+
+function speakerStats(rec) {
+  const map = new Map();
+  (rec.transcript || []).forEach((s) => map.set(s.who, (map.get(s.who) || 0) + 1));
+  return [...map.entries()];
+}
+
+/** 说话人清单：已出现在逐字稿里的 + 手动新增但还没有句子的 */
+function speakerPoolOf(rec) {
+  const stats = new Map(speakerStats(rec));
+  const pool = Array.isArray(rec.speakerPool) ? rec.speakerPool.slice() : [];
+  stats.forEach((_c, who) => { if (!pool.includes(who)) pool.push(who); });
+  pool.sort((a, b) => (stats.get(b) || 0) - (stats.get(a) || 0));
+  return pool.map((who) => ({ who, count: stats.get(who) || 0 }));
+}
+
+function openSpeakerEditor(rec, preset) {
+  editingSpeakersRec = rec;
+  selectedSpeaker = preset || null;
+  buildSpeakerChips();
+  $('#speakerInput').value = selectedSpeaker || '';
+  openSheet($('#speakerSheet'));
+}
+
+function buildSpeakerChips() {
+  const rec = editingSpeakersRec;
+  if (!rec) return;
+  const box = $('#speakerChips');
+  box.innerHTML = '';
+  const pool = speakerPoolOf(rec);
+  pool.forEach(({ who, count }) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (selectedSpeaker === who ? ' active' : '') + (count === 0 ? ' empty' : '');
+    b.textContent = who + ' · ' + count + ' 句';
+    b.addEventListener('click', () => {
+      selectedSpeaker = who;
+      const inp = $('#speakerInput');
+      inp.value = who;
+      buildSpeakerChips();
+      inp.focus();
+      inp.select();
+    });
+    box.appendChild(b);
+  });
+  const withVoice = pool.filter((p) => p.count > 0).length;
+  const empty = pool.length - withVoice;
+  $('#speakerHint').textContent = '共 ' + pool.length + ' 位说话人（' + withVoice + ' 位有发言' +
+    (empty > 0 ? '，' + empty + ' 位待标识' : '') + '）。点选后可改名，或把句子批量标识给他。';
+  const btn = $('#assignBtn');
+  if (btn) {
+    btn.textContent = selectedSpeaker ? '把句子批量标识为「' + selectedSpeaker + '」' : '批量标识句子（请先选择说话人）';
+    btn.style.opacity = selectedSpeaker ? '1' : '.55';
+  }
+}
+
+/** 保存：选中了说话人就改名，没选就是新增一个空说话人 */
+function applySpeakerRename(raw) {
+  if (!editingSpeakersRec) return;
+  const name = String(raw || '').trim().replace(/\s+/g, ' ');
+  if (!name) { toast('请输入说话人名称'); return; }
+  const rec = editingSpeakersRec;
+
+  if (!selectedSpeaker) {
+    const pool = Array.isArray(rec.speakerPool) ? rec.speakerPool.slice() : [];
+    if (pool.includes(name)) { toast('「' + name + '」已存在'); return; }
+    pool.push(name);
+    rec.speakerPool = pool;
+    selectedSpeaker = name;
+    persistSpeakers(rec);
+    buildSpeakerChips();
+    $('#speakerInput').value = name;
+    toast('已新增说话人「' + name + '」，可用批量标识给他分句');
+    return;
+  }
+
+  if (name === selectedSpeaker) { closeSheets(); return; }
+  const old = selectedSpeaker;
+  let n = 0;
+  (rec.transcript || []).forEach((s) => { if (s.who === old) { s.who = name; n++; } });
+  const pool = (Array.isArray(rec.speakerPool) ? rec.speakerPool.slice() : [])
+    .map((w) => (w === old ? name : w));
+  if (!pool.includes(name)) pool.push(name);
+  rec.speakerPool = pool.filter((w, i, arr) => arr.indexOf(w) === i);
+  selectedSpeaker = name;
+  /* 这条录音里「old」这把声音就是「name」：写进声纹档案，以后同一个人直接用新名字 */
+  persistSpeakers(rec, old, name);
+  buildSpeakerChips();
+  toast('已把「' + old + '」的 ' + n + ' 句改为「' + name + '」');
+}
+
+/* ---------------- 批量标识句子 ---------------- */
+let assignTarget = null;
+const assignSel = new Set();
+
+function openAssignSheet() {
+  if (!editingSpeakersRec) return;
+  if (!selectedSpeaker) { toast('请先选择一个说话人'); return; }
+  assignTarget = selectedSpeaker;
+  assignSel.clear();
+  renderAssignList();
+  closeSheets();
+  setTimeout(() => openSheet($('#assignSheet')), 120);
+}
+
+function renderAssignList() {
+  const rec = editingSpeakersRec;
+  const title = $('#assignTitle');
+  const hint = $('#assignHint');
+  if (title) title.textContent = '批量标识为「' + assignTarget + '」';
+  if (hint) hint.textContent = '勾选要标为「' + assignTarget + '」的句子；本身已属于他的会自动选中';
+  const box = $('#assignList');
+  if (!box) return;
+  box.innerHTML = '';
+  (rec.transcript || []).forEach((seg, i) => {
+    if (seg.who === assignTarget) assignSel.add(i);
+    const row = document.createElement('button');
+    row.className = 'assign-row' + (assignSel.has(i) ? ' on' : '');
+    row.innerHTML = '<span class="ts">' + fmt(seg.t) + '</span>' +
+      '<span class="body"><i class="who-mini">' + escapeHtml(seg.who) + '</i>' + escapeHtml(seg.text) + '</span>' +
+      '<span class="cb">' + (assignSel.has(i) ? '✓' : '') + '</span>';
+    row.addEventListener('click', () => {
+      if (assignSel.has(i)) assignSel.delete(i); else assignSel.add(i);
+      renderAssignList();
+    });
+    box.appendChild(row);
+  });
+  const save = $('#assignSave');
+  if (save) save.textContent = '保存（已选 ' + assignSel.size + ' 句）';
+}
+
+function saveAssign() {
+  const rec = editingSpeakersRec;
+  if (!rec || !assignTarget) return;
+  let n = 0;
+  assignSel.forEach((i) => {
+    const seg = rec.transcript[i];
+    if (seg && seg.who !== assignTarget) { seg.who = assignTarget; n++; }
+  });
+  persistSpeakers(rec);
+  closeSheets();
+  selectedSpeaker = assignTarget;
+  setTimeout(() => openSpeakerEditor(rec, assignTarget), 160);
+  toast('已把 ' + n + ' 句标识为「' + assignTarget + '」');
+}
+
+/** 说话人相关改动统一落库并刷新界面；from→to 会把声纹档案一起改名 */
+function persistSpeakers(rec, from, to) {
+  const whoSet = new Set((rec.transcript || []).map((s) => s.who));
+  rec.speakers = whoSet.size;
+  renderTranscript();
+  syncTranscript();
+  renderSummary();
+  renderMd();
+  renderList();
+  renderTags(rec);
+  if (play.rec && play.rec.id === rec.id) {
+    $('#dMeta').textContent = [stampOf(rec), fmtLong(rec.duration), rec.size,
+      rec.lang || '自动识别', (rec.speakers || 1) + ' 位说话人'].join(' · ');
+  }
+  if (NATIVE) {
+    NATIVE.patch(rec.id, JSON.stringify({
+      transcript: rec.transcript,
+      speakers: rec.speakers,
+      speakerPool: rec.speakerPool || []
+    }));
+    /* 把「这条录音里这个人 = 新名字」写进声纹档案，下次听到就认得出 */
+    if (from && to && from !== to && NATIVE.syncVoiceName) {
+      try { NATIVE.syncVoiceName(from, to); } catch (e) {}
+    }
+  }
+}
+
+/* ============================ 导出 ============================ */
+function plainText(rec) {
+  return (rec.transcript || []).map((s) => '[' + fmt(s.t) + '] ' + s.who + '：' + s.text).join('\n');
+}
+function buildSrt(rec) {
+  const tr = rec.transcript || [];
+  const pad = (n, w) => String(n).padStart(w || 2, '0');
+  const ts = (sec) => {
+    const ms = Math.round((sec % 1) * 1000);
+    const s = Math.floor(sec);
+    return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60) + ',' + pad(ms, 3);
+  };
+  return tr.map((s, i) => {
+    const end = i + 1 < tr.length ? tr[i + 1].t : (rec.duration || s.t + 3);
+    return (i + 1) + '\n' + ts(s.t) + ' --> ' + ts(end) + '\n' + s.text + '\n';
+  }).join('\n');
+}
+function safeName(rec, ext) {
+  return String(rec.title).replace(/[\\/:*?"<>|\s]+/g, '_') + '.' + ext;
+}
+function openExport(rec) {
+  const box = $('#exportList');
+  $('#exportSub').textContent = '「' + rec.title + '」选择格式';
+  const opts = [
+    { label: '导出 Markdown (.md)', run: () => NATIVE.exportText(safeName(rec, 'md'), 'text/markdown', buildMd(rec)) },
+    { label: '导出纯文本 (.txt)', run: () => NATIVE.exportText(safeName(rec, 'txt'), 'text/plain', plainText(rec)) },
+    { label: '导出字幕 (.srt)', run: () => NATIVE.exportText(safeName(rec, 'srt'), 'application/x-subrip', buildSrt(rec)) },
+    { label: '复制全文', run: () => {
+        const t = plainText(rec);
+        if (navigator.clipboard) navigator.clipboard.writeText(t).catch(() => {});
+        toast('已复制转写全文');
+      } },
+    { label: '分享给他人', run: () => NATIVE.share(plainText(rec)) },
+    { label: '删除这条录音', run: () => {
+        if (NATIVE) { NATIVE.remove(rec.id); closeDetail(); toast('已删除'); }
+      } }
+  ];
+  box.innerHTML = '';
+  opts.forEach((o) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = '<span>' + o.label + '</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.45"><path d="m9 6 6 6-6 6"/></svg>';
+    b.addEventListener('click', () => { closeSheets(); o.run(); });
+    box.appendChild(b);
+  });
+  openSheet($('#exportSheet'));
+}
+
+/* ============================ 长按多选 ============================ */
+let selMode = false;
+const selIds = new Set();
+let renamingId = null;
+const CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 5 5L19 7"/></svg>';
+
+/* 卡片手势：长按进多选 / 左滑出快捷操作 / 点击进详情 */
+const SWIPE_W = 204;
+let openSwipe = null;
+
+function closeOpenSwipe() {
+  if (!openSwipe) return;
+  const c = openSwipe.card;
+  c.classList.add('snap');
+  c.style.transform = '';
+  c.dataset.tx = '0';
+  openSwipe = null;
+}
+
+function bindCardGesture(wrap, card, rec) {
+  let timer = null, long = false, dragged = false;
+  let sx = 0, sy = 0, baseX = 0, horizontal = false;
+
+  const clearTimer = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  const curX = () => parseFloat(card.dataset.tx || '0');
+
+  wrap.addEventListener('pointerdown', (e) => {
+    long = false; dragged = false; horizontal = false;
+    sx = e.clientX; sy = e.clientY;
+    baseX = curX();
+    card.classList.remove('snap');
+    clearTimer();
+    /* 只有确认是横向滑动才捕获指针，否则点击会被吞掉 */
+    if (!selMode) {
+      timer = setTimeout(() => {
+        timer = null;
+        long = true;
+        try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) {}
+        closeOpenSwipe();
+        enterSelect(rec.id);
+      }, 460);
+    }
+  });
+
+  wrap.addEventListener('pointermove', (e) => {
+    const dx = e.clientX - sx;
+    const dy = e.clientY - sy;
+    if (!horizontal) {
+      if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        horizontal = true;
+        dragged = true;
+        clearTimer();
+        try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+      } else {
+        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) clearTimer();
+        return;
+      }
+    }
+    if (selMode) return;
+    let x = baseX + dx;
+    if (x > 0) x = 0;
+    if (x < -SWIPE_W) x = -SWIPE_W + (x + SWIPE_W) * 0.25;
+    card.style.transform = 'translateX(' + x.toFixed(1) + 'px)';
+    card.dataset.tx = x.toFixed(1);
+  });
+
+  const finish = () => {
+    clearTimer();
+    if (!horizontal) return;
+    horizontal = false;
+    const x = curX();
+    card.classList.add('snap');
+    if (x < -SWIPE_W * 0.4) {
+      card.style.transform = 'translateX(-' + SWIPE_W + 'px)';
+      card.dataset.tx = String(-SWIPE_W);
+      if (openSwipe && openSwipe.card !== card) closeOpenSwipe();
+      openSwipe = { wrap, card };
+      try { if (navigator.vibrate) navigator.vibrate(8); } catch (err) {}
+    } else {
+      card.style.transform = '';
+      card.dataset.tx = '0';
+      if (openSwipe && openSwipe.card === card) openSwipe = null;
+    }
+    setTimeout(() => { dragged = false; }, 320);
+  };
+  wrap.addEventListener('pointerup', finish);
+  wrap.addEventListener('pointercancel', finish);
+
+  wrap.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  /* 点击统一挂在外层容器：指针被捕获后点击目标会变成 wrap */
+  wrap.addEventListener('click', (e) => {
+    if (e.target.closest('.sw-act')) return;
+    if (long) { long = false; return; }
+    if (dragged) { dragged = false; return; }
+    if (selMode) { toggleSel(rec.id); return; }
+    if (openSwipe) { closeOpenSwipe(); return; }
+    openDetail(rec);
+  });
+
+  wrap.querySelectorAll('.sw-act').forEach((b) => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const act = b.dataset.act;
+      if (act === 'fav') toggleFav(rec);
+      else if (act === 'rename') startRename([rec.id]);
+      else if (act === 'del') askDelete([rec.id]);
+      closeOpenSwipe();
+    });
+  });
+}
+
+function enterSelect(id) {
+  if (!selMode) {
+    selMode = true;
+    selIds.clear();
+    document.body.classList.add('selecting');
+  }
+  if (id) selIds.add(id);
+  renderSelBar();
+  renderList();
+}
+function exitSelect() {
+  selMode = false;
+  selIds.clear();
+  document.body.classList.remove('selecting');
+  renderSelBar();
+  renderList();
+}
+function toggleSel(id) {
+  if (selIds.has(id)) selIds.delete(id); else selIds.add(id);
+  if (!selIds.size) { exitSelect(); return; }
+  renderSelBar();
+  renderList();
+}
+function renderSelBar() {
+  const el = $('#selCount');
+  if (el) el.textContent = '已选 ' + selIds.size + ' 项';
+  const visible = RECORDINGS.filter(matches);
+  const all = visible.length > 0 && visible.every((r) => selIds.has(r.id));
+  const allBtn = $('#selAll');
+  if (allBtn) allBtn.textContent = all ? '取消全选' : '全选';
+}
+function toggleSelectAll() {
+  const visible = RECORDINGS.filter(matches);
+  const all = visible.length > 0 && visible.every((r) => selIds.has(r.id));
+  selIds.clear();
+  if (!all) visible.forEach((r) => selIds.add(r.id));
+  if (!selIds.size) { exitSelect(); return; }
+  renderSelBar();
+  renderList();
+}
+
+function batchFavorite() {
+  const ids = [...selIds];
+  if (!ids.length) return;
+  const allFav = ids.every((id) => (byId(id) || {}).fav);
+  ids.forEach((id) => {
+    const r = byId(id);
+    if (!r) return;
+    r.fav = !allFav;
+    if (NATIVE) NATIVE.patch(id, JSON.stringify({ fav: r.fav }));
+  });
+  renderList();
+  toast(allFav ? '已取消收藏 ' + ids.length + ' 条' : '已收藏 ' + ids.length + ' 条');
+}
+
+/* ---- 单条快捷操作 ---- */
+function toggleFav(rec) {
+  if (!rec) return;
+  rec.fav = !rec.fav;
+  if (NATIVE) NATIVE.patch(rec.id, JSON.stringify({ fav: rec.fav }));
+  renderList();
+  if (play.rec && play.rec.id === rec.id) renderTags(play.rec);
+  toast(rec.fav ? '已加入收藏' : '已取消收藏');
+}
+
+/** 录音的开启时间戳：202611151352（2026年11月15日13点52分） */
+const pad2 = (n) => String(n).padStart(2, '0');
+function stampOf(rec) {
+  const d = new Date(rec.createdAt || Date.now());
+  return '' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) +
+    pad2(d.getHours()) + pad2(d.getMinutes());
+}
+
+/* ---- 重命名（单条 / 批量） ---- */
+let renameIds = [];
+let renameBatch = false;
+
+function startRename(ids) {
+  renameIds = (ids || []).slice();
+  if (!renameIds.length) return;
+  renameBatch = renameIds.length > 1;
+  const first = byId(renameIds[0]);
+  if (renameBatch) {
+    $('#renameTitle').textContent = '批量重命名 ' + renameIds.length + ' 条';
+    $('#renameHint').textContent = '输入名称后会自动追加每条录音的时间，例如「会议 ' +
+      (first ? stampOf(first) : '11-15 10:24') + '」';
+    $('#renameInput').value = '';
+    $('#renameInput').placeholder = '输入名称，如 会议 / 客户访谈';
+  } else {
+    $('#renameTitle').textContent = '重命名录音';
+    $('#renameHint').textContent = '给这条录音起个好记的名字';
+    $('#renameInput').value = first ? first.title : '';
+    $('#renameInput').placeholder = '录音标题';
+  }
+  openSheet($('#renameSheet'));
+  setTimeout(() => {
+    const i = $('#renameInput');
+    i.focus();
+    if (!renameBatch) i.select();
+  }, 150);
+}
+
+function saveRename() {
+  const raw = String($('#renameInput').value || '').trim();
+  if (!renameIds.length) return;
+
+  if (renameBatch) {
+    const base = raw || '录音';
+    let n = 0;
+    renameIds.forEach((id) => {
+      const r = byId(id);
+      if (!r) return;
+      const t = base + ' ' + stampOf(r);
+      r.title = t;
+      if (NATIVE) NATIVE.patch(id, JSON.stringify({ title: t }));
+      n++;
+    });
+    closeSheets();
+    renderAll();
+    if (selMode) exitSelect();
+    toast('已重命名 ' + n + ' 条录音');
+  } else {
+    if (!raw) { toast('请输入标题'); return; }
+    const id = renameIds[0];
+    const r = byId(id);
+    if (r) r.title = raw;
+    if (NATIVE) NATIVE.patch(id, JSON.stringify({ title: raw }));
+    if (play.rec && play.rec.id === id) {
+      play.rec.title = raw;
+      $('#dTitle').textContent = raw;
+      renderMd();
+    }
+    closeSheets();
+    renderAll();
+    if (selMode) exitSelect();
+    toast('已重命名为「' + raw + '」');
+  }
+  renameIds = [];
+}
+
+/* ---- 删除（多选 / 左滑共用） ---- */
+let pendingDeleteIds = [];
+
+function askDelete(ids) {
+  pendingDeleteIds = (ids || []).slice();
+  if (!pendingDeleteIds.length) return;
+  $('#confirmTitle').textContent = '删除 ' + pendingDeleteIds.length + ' 条录音';
+  $('#confirmText').textContent = '删除后先进入回收站，可在「设置 → 回收站」恢复；不会删除手机里的原始音频文件。';
+  openSheet($('#confirmSheet'));
+}
+
+function doDeleteConfirmed() {
+  const ids = pendingDeleteIds.slice();
+  pendingDeleteIds = [];
+  closeSheets();
+  ids.forEach((id) => { if (NATIVE) NATIVE.remove(id); });
+  if (play.rec && ids.includes(play.rec.id)) closeDetail();
+  RECORDINGS = RECORDINGS.filter((r) => !ids.includes(r.id));
+  if (selMode) exitSelect();
+  renderAll();
+  toast('已删除 ' + ids.length + ' 条');
+}
+
+/* ---- 分享选中录音 ---- */
+function batchShare() {
+  const ids = [...selIds];
+  if (!ids.length) return;
+  const parts = ids.map((id) => {
+    const r = byId(id);
+    if (!r) return '';
+    return '【' + r.title + '】\n' + stampOf(r) +
+      ' · ' + fmtLong(r.duration) + '\n\n' + (plainText(r) || '（尚未转写）');
+  }).filter(Boolean);
+  if (NATIVE) NATIVE.share(parts.join('\n\n————————\n\n'));
+  else toast('分享 ' + ids.length + ' 条录音');
+  exitSelect();
+}
+
+/* ============================ 一键复制 ============================ */
+function copyText(text, label, btn) {
+  const done = () => {
+    toast('已复制' + (label || ''));
+    if (btn) {
+      btn.classList.add('done');
+      setTimeout(() => btn.classList.remove('done'), 1200);
+    }
+    try { if (navigator.vibrate) navigator.vibrate(6); } catch (e) {}
+  };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    try { document.execCommand('copy'); done(); } catch (e) { toast('复制失败'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else {
+    fallback();
+  }
+}
+
+function summaryPlainText(rec) {
+  return cleanSummary(rec.summary).replace(/\*\*/g, '').replace(/`/g, '');
+}
+
+/* ============================ 录音键弹簧 ============================ */
+const SPRING = { k: 260, c: 12, m: 1 };
+const btn = $('#recBtn');
+let scale = 1, vel = 0, target = 1, rafId = null;
+
+function applySpringStyle() {
+  btn.style.transform = 'scale(' + scale.toFixed(4) + ')';
+  const t = Math.min(1, Math.max(0, (1 - scale) / 0.06));
+  const baseA = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sh-a')) || 0.4;
+  const glow = btn.classList.contains('recording') ? 'rgba(229,72,77,.42)' : 'var(--glow)';
+  btn.style.boxShadow =
+    '0 ' + (14 - 10 * t).toFixed(2) + 'px ' + (26 - 17 * t).toFixed(2) + 'px -8px rgba(0,0,0,' + (baseA * (1 - 0.55 * t)).toFixed(3) + '),' +
+    '0 ' + (8 - 6 * t).toFixed(2) + 'px ' + (20 - 14 * t).toFixed(2) + 'px -6px ' + glow;
+}
+function springStep() {
+  const dt = 1 / 60;
+  const a = (-SPRING.k * (scale - target) - SPRING.c * vel) / SPRING.m;
+  vel += a * dt;
+  scale += vel * dt;
+  applySpringStyle();
+  if (Math.abs(scale - target) > 0.0006 || Math.abs(vel) > 0.002) {
+    rafId = requestAnimationFrame(springStep);
+  } else {
+    scale = target; vel = 0; rafId = null; applySpringStyle();
+  }
+}
+function springTo(next) { target = next; if (!rafId) rafId = requestAnimationFrame(springStep); }
+
+let pressing = false;
+btn.addEventListener('pointerdown', () => { pressing = true; vel = 0; springTo(0.94); });
+const release = () => { if (!pressing) return; pressing = false; springTo(1); };
+btn.addEventListener('pointerup', release);
+btn.addEventListener('pointercancel', release);
+btn.addEventListener('pointerleave', release);
+
+/* ============================ 录音状态 ============================ */
+const recState = { on: false, paused: false, sec: 0, timer: null };
+
+function paintClock() {
+  $('#recClock').textContent = fmt(recState.sec);
+}
+
+function setPauseIcon(paused) {
+  const ic = $('#hudPauseIcon');
+  if (ic) {
+    ic.innerHTML = paused
+      ? '<path d="M8 5.2c0-.8.9-1.3 1.6-.9l9 6.8c.6.4.6 1.3 0 1.8l-9 6.8c-.7.4-1.6-.1-1.6-.9V5.2Z"/>'
+      : '<rect x="7" y="5" width="3.6" height="14" rx="1.4"/><rect x="13.4" y="5" width="3.6" height="14" rx="1.4"/>';
+  }
+  const label = $('#hudPauseLabel');
+  if (label) label.textContent = paused ? '继续' : '暂停';
+  const btn2 = $('#hudPause');
+  if (btn2) btn2.classList.toggle('paused', !!paused);
+}
+
+function startClock() {
+  clearInterval(recState.timer);
+  recState.timer = setInterval(() => {
+    if (recState.paused) return;
+    recState.sec++;
+    paintClock();
+  }, 1000);
+}
+
+function onRecStarted(payload) {
+  recState.on = true;
+  recState.paused = false;
+  recState.sec = payload && payload.elapsed ? Math.round(payload.elapsed / 1000) : 0;
+  btn.classList.add('recording');
+  document.body.classList.add('recording');   /* 由 CSS 控制暂停按钮显隐 */
+  $('#recHud').classList.add('show');
+  $('#recHud').classList.remove('paused');
+  $('#recTxt').textContent = '录音中';
+  setPauseIcon(false);
+  paintClock();
+  startClock();
+  applySpringStyle();
+}
+
+function onRecPaused(payload) {
+  if (!recState.on) return;
+  recState.paused = true;
+  if (payload && payload.elapsed) recState.sec = Math.round(payload.elapsed / 1000);
+  paintClock();
+  $('#recHud').classList.add('paused');
+  $('#recTxt').textContent = '已暂停';
+  setPauseIcon(true);
+}
+
+function onRecResumed(payload) {
+  if (!recState.on) return;
+  recState.paused = false;
+  if (payload && payload.elapsed) recState.sec = Math.round(payload.elapsed / 1000);
+  paintClock();
+  $('#recHud').classList.remove('paused');
+  $('#recTxt').textContent = '录音中';
+  setPauseIcon(false);
+}
+
+function onRecStopped(payload) {
+  recState.on = false;
+  recState.paused = false;
+  clearInterval(recState.timer);
+  btn.classList.remove('recording');
+  document.body.classList.remove('recording');
+  $('#recHud').classList.remove('show', 'paused');
+  setPauseIcon(false);
+  applySpringStyle();
+  if (payload && payload.duration) toast('已保存 ' + fmt(payload.duration) + '，开始转写…');
+}
+
+function onRecIdle() {
+  recState.on = false;
+  recState.paused = false;
+  clearInterval(recState.timer);
+  btn.classList.remove('recording');
+  document.body.classList.remove('recording');
+  $('#recHud').classList.remove('show', 'paused');
+  setPauseIcon(false);
+  applySpringStyle();
+}
+
+btn.addEventListener('click', () => {
+  if (!NATIVE) { toast('请在手机 App 中使用录音'); return; }
+  if (recState.on) NATIVE.stopRecord(); else NATIVE.startRecord();
+});
+
+const hudPauseBtn = $('#hudPause');
+if (hudPauseBtn) {
+  hudPauseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!NATIVE || !recState.on) return;
+    if (recState.paused) NATIVE.resumeRecord();
+    else NATIVE.pauseRecord();
+  });
+}
+
+/* ============================ 原生事件 ============================ */
+window.__native = function (event, payload) {
+  try {
+    if (event === 'state') {
+      RECORDINGS = payload.records || [];
+      if (payload.model) MODEL = payload.model;
+      if (typeof payload.trashCount === 'number') updateTrashCount(payload.trashCount);
+      migrateTopics();
+      renderAll();
+      if (play.rec) {
+        const fresh = byId(play.rec.id);
+        if (fresh) {
+          play.rec = fresh;
+          renderTags(fresh);
+          if (fresh.status === 'done' && !(play.rec.transcript || []).length) renderTranscript();
+          else renderTranscript();
+          renderSummary(); renderMd(); renderWave();
+        }
+      }
+      updateModelUI();
+    } else if (event === 'model') {
+      MODEL = payload;
+      updateModelUI();
+    } else if (event === 'asrProgress') {
+      const rec = byId(payload.id);
+      if (rec) {
+        rec.status = 'processing';
+        rec.progress = payload.progress;
+        renderList();
+        if (play.rec && play.rec.id === rec.id) {
+          renderTags(rec);
+          if ((rec.transcript || []).length === 0) renderTranscript();
+        }
+      }
+    } else if (event === 'asrError') {
+      toast(payload && payload.message ? payload.message : '转写失败');
+    } else if (event === 'recordStarted') {
+      onRecStarted(payload);
+    } else if (event === 'recordPaused') {
+      onRecPaused(payload);
+    } else if (event === 'recordResumed') {
+      onRecResumed(payload);
+    } else if (event === 'translateProgress') {
+      trState.busy = true;
+      const pct = payload && payload.progress ? payload.progress : 0;
+      setTranslateBusyLabel(pct > 0 ? '翻译中 ' + pct + '%' : '翻译中…');
+      const note = $('#mtNote');
+      if (note && payload && payload.message) note.textContent = payload.message;
+    } else if (event === 'translateFailed') {
+      trState.busy = false;
+      if (play.rec) renderTags(play.rec);
+      toast((payload && payload.message) ? ('翻译失败：' + payload.message) : '翻译失败');
+    } else if (event === 'translated') {
+      const rec = byId(payload && payload.id);
+      if (rec) {
+        if (play.rec && play.rec.id === rec.id) play.rec = rec;
+        if (play.rec && play.rec.id === rec.id) applyTranslated(rec);
+      }
+    } else if (event === 'audioPermission') {
+      refreshAudioList();
+    } else if (event === 'openImport') {
+      openImportSheet();
+    } else if (event === 'recordIdle') {
+      onRecIdle();
+    } else if (event === 'recordStopped') {
+      onRecStopped(payload);
+    } else if (event === 'permission') {
+      if (payload && payload.mic === false) toast('没有麦克风权限，请在系统设置里允许');
+    }
+  } catch (e) {
+    console.error('native event error', e);
+  }
+};
+
+function updateModelUI() {
+  const s = $('#splash');
+  $('#splashBar').style.width = (MODEL.ready ? 100 : Math.max(2, MODEL.progress || 0)) + '%';
+  $('#splashMsg').textContent = MODEL.message || (MODEL.ready ? '模型已就绪' : '正在准备离线模型…');
+  if (MODEL.ready) s.classList.add('hide');
+}
+
+/* 退到后台：停止播放并收起面板 */
+window.__appPause = function () {
+  try {
+    if (play.playing) setPlaying(false);
+    if (play.audio) { try { play.audio.pause(); } catch (e) {} }
+    closeSheets();
+  } catch (e) {}
+};
+
+window.__appBack = function () {
+  if ($('.sheet.show')) { closeSheets(); return true; }
+  if ($('#drawer').classList.contains('show')) { closeDrawer(); return true; }
+  if ($('#detailView').classList.contains('shown')) { closeDetail(); return true; }
+  if (selMode) { exitSelect(); return true; }
+  return false;
+};
+
+/* 桌面快捷方式「打开」/ 设置里的「打开」：列出本机受支持的音频 */
+function sizeLabel(bytes) {
+  const mb = (bytes || 0) / 1048576;
+  return mb >= 1 ? mb.toFixed(1) + ' MB' : Math.max(1, Math.round((bytes || 0) / 1024)) + ' KB';
+}
+
+function refreshAudioList() {
+  const box = $('#audioList');
+  const cnt = $('#audioCount');
+  if (!box) return;
+  if (!NATIVE || !NATIVE.listAudio) {
+    box.innerHTML = '<div class="audio-empty">网页演示环境不扫描本机音频，点下面「浏览其它位置」即可导入。</div>';
+    if (cnt) cnt.textContent = '';
+    return;
+  }
+  box.innerHTML = '<div class="audio-empty">正在扫描本机音频…</div>';
+  setTimeout(() => {
+    let list = [];
+    try { list = JSON.parse(NATIVE.listAudio(60) || '[]'); } catch (e) { list = []; }
+    box.innerHTML = '';
+    if (!list.length) {
+      box.innerHTML = '<div class="audio-empty">没有找到受支持的音频文件，可以点下面「浏览其它位置」到文件夹里找。</div>';
+      if (cnt) cnt.textContent = '0 个';
+      return;
+    }
+    if (cnt) cnt.textContent = list.length + ' 个';
+    list.forEach((a) => {
+      const b = document.createElement('button');
+      b.className = 'audio-row';
+      b.innerHTML = '<span class="nm">' + escapeHtml(a.name || '未命名') + '</span>' +
+        '<span class="meta">' + fmt(Math.round((a.dur || 0) / 1000)) + ' · ' + sizeLabel(a.size) + '</span>';
+      b.addEventListener('click', () => {
+        closeSheets();
+        try { NATIVE.importAudioId(a.id); } catch (e) {}
+        toast('正在导入「' + (a.name || '') + '」');
+      });
+      box.appendChild(b);
+    });
+  }, 40);
+}
+
+function openImportSheet() {
+  const othersOpen = !!document.querySelector('.sheet.show') || $('#drawer').classList.contains('show');
+  closeDrawer();
+  closeSheets();
+  const show = () => {
+    openSheet($('#importSheet'));
+    try { if (NATIVE && NATIVE.requestAudioAccess) NATIVE.requestAudioAccess(); } catch (e) {}
+    refreshAudioList();
+  };
+  if (othersOpen) setTimeout(show, 170);
+  else show();
+}
+
+/* ============================ 事件绑定 ============================ */
+function bind() {
+  $('#backBtn').addEventListener('click', closeDetail);
+  $('#shareBtn').addEventListener('click', () => { if (play.rec) openExport(play.rec); });
+
+  $('#playBtn').addEventListener('click', () => {
+    if (!play.rec) return;
+    if (!play.playing && play.rec.duration && play.elapsed >= play.rec.duration - 0.4) seekTo(0);
+    setPlaying(!play.playing);
+  });
+  $('#back15').addEventListener('click', () => seekTo(play.elapsed - 15));
+  $('#fwd15').addEventListener('click', () => seekTo(play.elapsed + 15));
+  $('#speedBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    $('#speedPop').classList.toggle('show');
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#speedPop') && !e.target.closest('#speedBtn')) $('#speedPop').classList.remove('show');
+  });
+
+  const wave = $('#wave');
+  let dragging = false;
+  const seekAt = (e) => {
+    if (!play.rec || !play.rec.duration) return;
+    const rect = wave.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const ratio = Math.min(1, Math.max(0, x / rect.width));
+    seekTo(ratio * play.rec.duration);
+  };
+  wave.addEventListener('pointerdown', (e) => {
+    if (!play.rec) return;
+    dragging = true;
+    play.autoScroll = false;
+    seekAt(e);
+    try { wave.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  wave.addEventListener('pointermove', (e) => { if (dragging) seekAt(e); });
+  wave.addEventListener('pointerup', () => { dragging = false; setTimeout(() => { play.autoScroll = true; }, 600); });
+
+  const body = $('#detailBody');
+  body.addEventListener('touchstart', () => { play.autoScroll = false; }, { passive: true });
+  body.addEventListener('touchend', () => setTimeout(() => { play.autoScroll = true; }, 2500));
+
+  $$('#segTabs button').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+  $('#searchInput').addEventListener('input', (e) => { state.keyword = e.target.value; renderList(); });
+  $('#settingsBtn').addEventListener('click', openDrawer);
+  $$('#langSeg button').forEach((b) => {
+    b.addEventListener('click', () => { applyLang(b.dataset.lang); toast(LANG === 'en' ? 'Language: English' : '语言：中文'); });
+  });
+  $('#drawerClose').addEventListener('click', closeDrawer);
+  $('#backdrop').addEventListener('click', () => { closeDrawer(); closeSheets(); });
+
+  $('#openLocalBtn').addEventListener('click', () => {
+    closeDrawer();
+    setTimeout(openImportSheet, 170);
+  });
+  $('#trashBtn').addEventListener('click', openTrash);
+  $('#trashPurgeAll').addEventListener('click', () => {
+    if (NATIVE) NATIVE.purgeAllTrash();
+    toast('回收站已清空');
+    setTimeout(refreshTrash, 260);
+  });
+
+  $('#applyRange').addEventListener('click', () => {
+    let f = $('#fromDate').value, t = $('#toDate').value;
+    if (!f && !t) { toast('请选择起始和结束日期'); return; }
+    if (f && t && f > t) { const tmp = f; f = t; t = tmp; }
+    state.from = f; state.to = t; state.time = 'custom';
+    renderAll(); closeSheets();
+    toast('已筛选 ' + rangeLabel());
+  });
+
+  $('#saveTopic').addEventListener('click', () => applyTopic($('#topicInput').value));
+  $('#topicInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') applyTopic(e.target.value); });
+  $('#saveSpeaker').addEventListener('click', () => applySpeakerRename($('#speakerInput').value));
+  $('#speakerInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') applySpeakerRename(e.target.value); });
+  $('#assignBtn').addEventListener('click', openAssignSheet);
+  $('#assignAll').addEventListener('click', () => {
+    (editingSpeakersRec.transcript || []).forEach((_s, i) => assignSel.add(i));
+    renderAssignList();
+  });
+  $('#assignNone').addEventListener('click', () => { assignSel.clear(); renderAssignList(); });
+  $('#assignSave').addEventListener('click', saveAssign);
+  $('#skipSplash').addEventListener('click', () => $('#splash').classList.add('hide'));
+
+  /* 多选 */
+  $('#selClose').addEventListener('click', exitSelect);
+  $('#selAll').addEventListener('click', toggleSelectAll);
+  $('#selFav').addEventListener('click', batchFavorite);
+  $('#selShare').addEventListener('click', batchShare);
+  $('#selRename').addEventListener('click', () => {
+    if (!selIds.size) { toast('请先选择录音'); return; }
+    startRename([...selIds]);
+  });
+  $('#selDelete').addEventListener('click', () => {
+    if (!selIds.size) { toast('请先选择录音'); return; }
+    askDelete([...selIds]);
+  });
+  $('#mtCancel').addEventListener('click', () => { pendingTranslateId = null; closeSheets(); });
+  $('#mtStart').addEventListener('click', () => {
+    const id = pendingTranslateId;
+    closeSheets();
+    if (!id) return;
+    const rec = byId(id);
+    pendingTranslateId = null;
+    if (rec) startNativeTranslate(rec);
+  });
+  $('#saveSeg').addEventListener('click', saveSegEdit);
+  $('#segText').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveSegEdit();
+  });
+  $('#saveRename').addEventListener('click', saveRename);
+  $('#renameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') saveRename(); });
+  $('#confirmCancel').addEventListener('click', () => { pendingDeleteIds = []; closeSheets(); });
+  $('#confirmOk').addEventListener('click', doDeleteConfirmed);
+
+  /* 一键复制 */
+  $('#copyText').addEventListener('click', (e) => {
+    if (!play.rec) return;
+    copyText(plainText(play.rec), '逐字稿', e.currentTarget);
+  });
+  $('#copySummary').addEventListener('click', (e) => {
+    if (!play.rec) return;
+    copyText(summaryPlainText(play.rec), '摘要', e.currentTarget);
+  });
+  $('#copyMd').addEventListener('click', (e) => {
+    if (!play.rec) return;
+    copyText(buildMd(play.rec), ' Markdown 源码', e.currentTarget);
+  });
+}
+
+/* ============================ 启动 ============================ */
+(function init() {
+  buildThemeGrid();
+  let saved = 'paper';
+  try { saved = localStorage.getItem(THEME_KEY) || 'paper'; } catch (e) {}
+  applyTheme(saved);
+  renderAll();
+  bind();
+  applySpringStyle();
+  if (NATIVE) {
+    try {
+      const st = JSON.parse(NATIVE.getState());
+      RECORDINGS = st.records || [];
+      if (st.model) MODEL = st.model;
+      renderAll();
+      updateModelUI();
+      if (st.trashCount) updateTrashCount(st.trashCount);
+      hydrateUiPrefs();
+      migrateTopics();
+    } catch (e) { console.error('getState', e); }
+    /* 从桌面快捷方式进入后台录音后，回到界面要能接着显示录音状态 */
+    try {
+      if (NATIVE.getRecordingState) {
+        const rs = JSON.parse(NATIVE.getRecordingState());
+        if (rs.running) onRecStarted(rs);
+        else onRecIdle();
+      }
+    } catch (e) { /* ignore */ }
+    /* 冷启动从快捷方式进来时，native 会把待执行动作留在这里 */
+    try {
+      if (NATIVE.consumePendingAction) {
+        const pa = NATIVE.consumePendingAction();
+        if (pa === 'import') openImportSheet();
+      }
+    } catch (e) { /* ignore */ }
+    poolStart();
+  } else {
+    $('#splash').classList.add('hide');
+  }
+})();
+
+function poolStart() {
+  setTimeout(() => { if (!MODEL.ready && !MODEL.busy) updateModelUI(); }, 500);
+}
+</script>
+</body>
+</html>

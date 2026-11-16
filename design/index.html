@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>录音笔记 · 界面与变更记录</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #14171e;
+    --panel-2: #1a1e26;
+    --line: rgba(255,255,255,.08);
+    --text: #e8ecf3;
+    --text-2: #9aa4b2;
+    --text-3: #6f7a8a;
+    --accent: #85aef4;
+    --accent-soft: rgba(133,174,244,.14);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background:
+      radial-gradient(120% 80% at 12% -10%, rgba(133,174,244,.10), transparent 60%),
+      radial-gradient(90% 60% at 105% 105%, rgba(164,79,40,.10), transparent 65%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC",
+                 "MiSans", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  header {
+    height: 62px; display: flex; align-items: center; gap: 14px;
+    padding: 0 26px; border-bottom: 1px solid var(--line);
+  }
+  header h1 { font-size: 16px; margin: 0; letter-spacing: .2px; font-weight: 700; }
+  header .sub { font-size: 12px; color: var(--text-3); }
+  header .grow { flex: 1; }
+  header .ver {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); padding: 4px 9px; border-radius: 7px;
+  }
+  header a {
+    font-size: 12px; color: var(--text-2); text-decoration: none;
+    border: 1px solid var(--line); padding: 7px 12px; border-radius: 10px;
+  }
+  header a:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
+
+  main {
+    display: flex; gap: 34px; align-items: flex-start;
+    padding: 22px 26px 26px;
+    height: calc(100vh - 62px);
+  }
+
+  /* ---------- 左：手机 + 页面 ---------- */
+  .stage { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .phone-frame {
+    height: calc(100vh - 150px);
+    max-height: 812px;
+    aspect-ratio: 390 / 812;
+    border-radius: 46px;
+    overflow: hidden;
+    background: #ede2cd;
+    box-shadow:
+      0 0 0 10px #1b1f27,
+      0 0 0 12px #2a303b,
+      0 30px 60px rgba(0,0,0,.62);
+  }
+  .phone-frame iframe {
+    width: 100%; height: 100%; border: 0; display: block; background: #ede2cd;
+  }
+  .stage-hint { font-size: 11.5px; color: var(--text-3); text-align: center; line-height: 1.6; }
+  .stage-hint b { color: var(--text-2); font-weight: 600; }
+
+  /* ---------- 右：变更记录 ---------- */
+  .log {
+    flex: 0 0 396px; width: 396px;
+    height: calc(100vh - 150px);
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 16px 16px 6px;
+    display: flex; flex-direction: column;
+  }
+  .log-head { display: flex; align-items: baseline; gap: 10px; padding: 0 4px 10px; }
+  .log-head h2 { font-size: 14px; margin: 0; font-weight: 700; letter-spacing: .2px; }
+  .log-head span { font-size: 11px; color: var(--text-3); }
+  .log-body { overflow-y: auto; padding-right: 6px; flex: 1; }
+  .log-body::-webkit-scrollbar { width: 6px; }
+  .log-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+
+  ol.timeline { list-style: none; margin: 0; padding: 0 0 0 6px; }
+  ol.timeline li {
+    position: relative;
+    padding: 0 0 15px 20px;
+    border-left: 1px dashed rgba(255,255,255,.10);
+  }
+  ol.timeline li:last-child { border-left-color: transparent; padding-bottom: 4px; }
+  ol.timeline li .dot {
+    position: absolute; left: -5px; top: 5px;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #2c333f; border: 1px solid rgba(255,255,255,.18);
+  }
+  ol.timeline li.current .dot {
+    background: var(--accent); border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(133,174,244,.16);
+  }
+  .meta { display: flex; align-items: center; gap: 8px; }
+  .meta .ver {
+    font-size: 10.5px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); padding: 2px 7px; border-radius: 6px;
+  }
+  li.current .meta .ver { color: #0f1620; background: var(--accent); }
+  .meta .date { font-size: 10.5px; color: var(--text-3); letter-spacing: .3px; }
+  .meta .cur {
+    margin-left: auto; font-size: 10px; color: var(--accent);
+    border: 1px solid rgba(133,174,244,.35); padding: 1px 6px; border-radius: 5px;
+  }
+  li h3 { font-size: 13px; font-weight: 700; margin: 7px 0 6px; color: var(--text); }
+  li ul { margin: 0; padding: 0; list-style: none; }
+  li ul li {
+    font-size: 11.8px; line-height: 1.62; color: var(--text-2);
+    padding: 2px 0 2px 11px; border: 0; position: relative;
+  }
+  li ul li::before {
+    content: ''; position: absolute; left: 2px; top: 10px;
+    width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.22);
+  }
+
+  @media (max-width: 1080px) {
+    body { overflow: auto; }
+    main { flex-direction: column; height: auto; align-items: stretch; gap: 20px; }
+    .phone-frame { height: 72vh; }
+    .log { flex: none; width: 100%; height: auto; max-height: none; }
+    .log-body { overflow: visible; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>录音笔记</h1>
+  <span class="sub">界面与变更记录 · 左侧为真实页面，可直接交互</span>
+  <span class="grow"></span>
+  <span class="ver">Android 已同步</span>
+  <a href="app.html" target="_blank" rel="noopener">打开独立页面</a>
+</header>
+<main>
+  <section class="stage">
+    <div class="phone-frame">
+      <iframe id="appFrame" src="app.html" title="录音笔记"></iframe>
+    </div>
+    <div class="stage-hint">
+      示例数据 · <b>点右下角麦克风</b>可试录音动效，<b>右上齿轮</b>为设置，点任意录音进详情
+    </div>
+  </section>
+
+  <aside class="log">
+    <div class="log-head">
+      <h2>变更记录</h2>
+      <span>17 个版本</span>
+    </div>
+    <div class="log-body">
+      <ol class="timeline">
+<li class="current">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v17</span><span class="date">2026-11-15</span><span class="cur">当前</span></div>
+  <h3>手动转写 · 搜索全文 · 话题持久化</h3>
+  <ul><li>录完 / 导入后不再自动转写，卡片右上角改成「开始转写」按钮</li><li>搜索支持逐字稿与译文内容，忽略空格与大小写</li><li>话题与配色改存原生，重启 App 不再丢失；历史话题自动出现在筛选里</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v16</span><span class="date">2026-11-15</span></div>
+  <h3>回收站 · 话题精简 · 翻译即时</h3>
+  <ul><li>删除改为进回收站，设置里可恢复 / 彻底删除；示例录音删掉后不再自动重建</li><li>话题只保留「未分类」，其余由用户自己添加；旧内置话题一次性归入未分类</li><li>「打开」去掉底部「浏览其它位置」，只列本机受支持音频</li><li>删除只删记录，不动手机里的原始音频文件</li><li>多选时隐藏左滑按钮，修复收藏/重命名/删除重复显示</li><li>翻译完成后立即刷新界面，不用重启</li><li>修改逐字稿后旧译文自动失效，再次翻译会重新生成</li></ul>
+</li>
+<li class="current">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v15</span><span class="date">2026-11-15</span><span class="cur">当前</span></div>
+  <h3>界面精简 · 本机音频列表</h3>
+  <ul><li>列表卡片去掉播放图标，点卡片直接进详情</li><li>逐字稿标题精简为「逐字稿」，复制按钮不再被挤成竖排</li><li>摘要页去掉引擎前缀与「转写信息」整块</li><li>Markdown 去掉引擎前缀与页脚说明</li><li>「打开」改为直接列出本机音频（只含受支持格式）</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v14</span><span class="date">2026-11-15</span></div>
+  <h3>打开本地音频 · 原文+译文并存</h3>
+  <ul><li>顶栏「导入」移入设置抽屉，改名为「打开」</li><li>文件选择器按音频 MIME 过滤，只显示受支持的格式</li><li>翻译后原文与译文同时显示，译文缓存在录音里</li><li>再次点「翻译」直接展开缓存结果，不重新推理</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v13</span><span class="date">2026-11-15</span></div>
+  <h3>详情页精简</h3>
+  <ul><li>移除标签行里的「说话人 N」按钮，标签行只保留 话题 / 翻译 / 收藏 / 重新转写</li><li>说话人管理入口统一为：点逐字稿里的说话人名字</li><li>字幕与 Markdown 同步保留，功能未减少</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v12</span><span class="date">2026-11-15</span></div>
+  <h3>翻译 · HY-MT1.5-1.8B</h3>
+  <ul><li>详情页新增「翻译」按钮，位于「说话人」右侧，原按钮保留</li><li>中文→英文 / 英文→中文，逐句翻译并在本地缓存</li><li>首次使用下载 Q4 模型 1.08 GB（魔搭镜像），之后完全离线</li><li>翻译中按钮显示进度，可随时切回「原文」</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v11</span><span class="date">2026-11-15</span></div>
+  <h3>录音暂停 + 后台录音</h3>
+  <ul><li>录音胶囊右侧新增「暂停 / 继续」按钮，暂停时计时停走、电平冻结</li><li>新增前台录音服务：桌面长按「开始录音」直接后台录音</li><li>通知栏可暂停 / 继续 / 结束，回到 App 自动同步录音状态</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v10</span><span class="date">2026-11-15</span></div>
+  <h3>声纹记忆 + 横排配色</h3>
+  <ul><li>同一把声音跨录音复用名字；用户命名过的名字匹配阈值再放宽</li><li>设置抽屉改为一排四个配色色块，点选即切换并自动收起</li><li>人声管理支持跨录音改名、清空声纹档案</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v9</span><span class="date">2026-11-15</span></div>
+  <h3>说话人管理</h3>
+  <ul><li>单条录音：已有发言者按句数列出，可直接改名</li><li>可新增「还没有句子」的空说话人，再把勾选的句子批量标识给他</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v8</span><span class="date">2026-11-15</span></div>
+  <h3>导入与列表修复</h3>
+  <ul><li>导入前说明支持的 12 种格式，选择器放宽到 ogg / flac / mp4 等容器</li><li>解不出音轨的文件自动跳过并提示，不留在列表里</li><li>修复卡片被 flex 压缩、只剩标题行的显示问题</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v7</span><span class="date">2026-11-15</span></div>
+  <h3>单句编辑 / 桌面快捷方式 / 示例录音</h3>
+  <ul><li>逐字稿每句可改说话人与文字（铅笔按钮或长按整句）</li><li>桌面长按 App：录音开关、导入录音</li><li>新建录音命名 录音202611151352；首次启动自动导入示例对话</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v6</span><span class="date">2026-11-15</span></div>
+  <h3>时间戳 / 禁止选中 / 语种与分人 / 后台停播</h3>
+  <ul><li>录音时间统一显示 202611151352（年月日时分）</li><li>全局禁止文字选中，长按不再弹出选区菜单（输入框除外）</li><li>语种检测：普通话 · 英文夹杂；CAM++ 声纹聚类自动分人</li><li>退到后台自动停止播放，录音继续</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v5</span><span class="date">2026-11-15</span></div>
+  <h3>Android App · 离线转写</h3>
+  <ul><li>SenseVoice-Small int8 全离线转写，录音不出手机</li><li>原生录音 / 导入 / 播放，本地 HTTP 支持拖动进度</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v4</span><span class="date">2026-11-15</span></div>
+  <h3>左滑与一键复制</h3>
+  <ul><li>左滑卡片出「收藏 / 重命名 / 删除」</li><li>逐字稿、摘要、Markdown 三个页签各一键复制</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v3</span><span class="date">2026-11-15</span></div>
+  <h3>全面屏避让 + 长按多选</h3>
+  <ul><li>注入系统栏高度，内容不再被状态栏遮挡</li><li>长按进入多选：收藏 / 分享 / 批量重命名（自动追加时间）/ 删除</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v2</span><span class="date">2026-11-15</span></div>
+  <h3>详情页增强</h3>
+  <ul><li>时间筛选支持自定义起止日期</li><li>纸张色增加真实纸纹；导出集中到导出面板</li><li>详情标签行：话题可编辑、收藏、重新转写</li></ul>
+</li>
+<li class="">
+  <span class="dot"></span>
+  <div class="meta"><span class="ver">v1</span><span class="date">2026-11-15</span></div>
+  <h3>原型定型</h3>
+  <ul><li>录音列表 + 详情（原声波形 + 逐字稿）</li><li>四套配色：中心灰 / 米白 / 豆沙绿 / 纸张色</li><li>Markdown 渲染、0.5–3.0 倍速、弹簧录音键</li></ul>
+</li>
+</ol>
+    </div>
+  </aside>
+</main>
+</body>
+</html>

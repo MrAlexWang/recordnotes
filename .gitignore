@@ -1,0 +1,29 @@
+# 构建产物 / build output
+build/
+dist/*.apk
+dist/*.zip
+*.log
+build_run.log
+
+# 工具链与依赖（体积大，不入库）/ toolchain and downloaded deps
+.toolchain/
+build-dl/
+build-llama/llama_cpp_python-*/
+build-llama/*.tar.gz
+build-llama/*.zip
+build-llama/build-ndk/
+build-llama/out/
+
+# 模型文件 / model weights
+*.onnx
+*.gguf
+*.part
+
+# 设计页由脚本生成 / generated preview
+design/app.html
+design/_*.html
+
+# 编辑器
+.idea/
+.vscode/
+*.iml

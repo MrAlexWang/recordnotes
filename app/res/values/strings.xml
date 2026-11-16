@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">录音笔记</string>
+    <string name="shortcut_record_short">开始录音</string>
+    <string name="shortcut_record_long">后台开始录音，稍后可暂停或结束</string>
+    <string name="shortcut_import_short">导入录音</string>
+    <string name="shortcut_import_long">从本地导入音频并转写</string>
+</resources>

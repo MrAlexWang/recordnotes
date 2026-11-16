@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_record"
+        android:shortcutId="record_start"
+        android:shortcutLongLabel="@string/shortcut_record_long"
+        android:shortcutShortLabel="@string/shortcut_record_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.phonesar.notes.MainActivity"
+            android:targetPackage="com.phonesar.notes">
+            <extra
+                android:name="openAction"
+                android:value="recordStart" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_import"
+        android:shortcutId="import_audio"
+        android:shortcutLongLabel="@string/shortcut_import_long"
+        android:shortcutShortLabel="@string/shortcut_import_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.phonesar.notes.MainActivity"
+            android:targetPackage="com.phonesar.notes">
+            <extra
+                android:name="openAction"
+                android:value="import" />
+        </intent>
+    </shortcut>
+</shortcuts>
