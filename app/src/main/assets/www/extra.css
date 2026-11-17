@@ -446,3 +446,59 @@
   .copy-btn:active { transform: scale(.94); color: var(--accent); border-color: var(--accent); }
   .copy-btn.done { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
   .section-title { align-items: center; }
+
+/* ---------- 模型管理 ---------- */
+.model-list { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 10px; }
+.model-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 11px 12px; border-radius: 13px; margin: 0;
+  background: var(--surface-2); border: 1px solid var(--line, rgba(128,128,128,.22));
+  color: var(--text); font-family: inherit; transition: border-color .16s, box-shadow .16s;
+}
+.model-row:active { transform: scale(.99); }
+.model-row.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.model-main { flex: 1; min-width: 0; }
+.model-name { display: block; font-size: 13px; font-weight: 600; }
+.model-note { display: block; font-size: 11px; color: var(--text-3); margin-top: 3px; line-height: 1.45; }
+.model-meta {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  font-size: 10px; color: var(--text-3); white-space: nowrap; flex: 0 0 auto;
+}
+.model-ok { font-style: normal; color: #2f9e5f; }
+.model-cur { font-style: normal; color: var(--accent); font-weight: 700; }
+.model-input {
+  width: 100%; height: 40px; margin-top: 8px; padding: 0 11px; border-radius: 11px;
+  border: 1px solid var(--line, rgba(128,128,128,.25)); background: var(--surface);
+  color: var(--text); font-family: inherit; font-size: 12.5px; box-sizing: border-box;
+}
+.model-input::placeholder { color: var(--text-3); }
+.model-actions { display: flex; gap: 10px; margin-top: 12px; }
+.model-actions > .mini-btn { flex: 1; height: 44px; border-radius: 13px; font-size: 13px; }
+.model-actions > .btn-primary { flex: 1; }
+.cloud-row {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  width: 100%; text-align: left; padding: 12px 13px; border-radius: 13px; margin-bottom: 8px;
+  background: var(--surface-2); border: 1px solid var(--line, rgba(128,128,128,.22));
+  color: var(--text); font-family: inherit;
+}
+.cloud-row strong { font-size: 13px; }
+.cloud-row small { font-size: 11px; color: var(--text-3); line-height: 1.45; }
+
+/* ---------- 设置抽屉：窄容器下的防溢出（英文文案更长） ---------- */
+.drawer { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+.drawer-body { min-width: 0; }
+.drawer .theme-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.drawer .theme-opt { min-width: 0; }
+.drawer .theme-opt small {
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+  font-size: 9.5px; line-height: 1.3;
+}
+.drawer-row { min-width: 0; }
+.drawer-row > svg { flex: 0 0 auto; }
+.drawer-row > span {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.drawer-row small {
+  flex: 0 1 auto; max-width: 55%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}

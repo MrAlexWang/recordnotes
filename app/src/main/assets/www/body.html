@@ -168,7 +168,23 @@
 
         <div class="drawer-label" id="themeLabel">界面配色</div>
         <div class="theme-grid" id="themeGrid"></div>
-        
+
+        <div class="drawer-label" id="modelLabel">本地模型</div>
+        <button class="drawer-row" id="asrModelBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3Z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          <span id="asrModelTxt">转写模型</span>
+        </button>
+
+        <button class="drawer-row" id="trModelBtn" style="margin-top:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11M9.5 5v2.5c0 4-2 7.2-5 9"/><path d="M6.6 11.5c1.1 2.3 3.4 4 6.4 5"/><path d="M13.5 20l4-10 4 10M15 16.6h5"/></svg>
+          <span id="trModelTxt">翻译模型</span>
+        </button>
+
+        <div class="drawer-label" id="cloudLabel" style="margin-top:16px">在线能力</div>
+        <button class="drawer-row" id="cloudModelBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 18a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 17.6 9a4 4 0 0 1 .4 8"/><path d="M12 21v-6M9.5 17.5 12 15l2.5 2.5"/></svg>
+          <span id="cloudModelTxt">付费转写</span>
+        </button>
 
         <button class="drawer-row" id="openLocalBtn" style="margin-top:8px">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2l1.6 2h6.2A2.5 2.5 0 0 1 19 9.5v7A2.5 2.5 0 0 1 16.5 19h-11A2.5 2.5 0 0 1 3 16.5v-9Z"/></svg>
@@ -243,6 +259,32 @@
         <button class="mini-btn" id="mtCancel" style="flex:1;height:44px;border-radius:13px;font-size:13px">取消</button>
         <button class="btn-primary" id="mtStart" style="flex:1">下载并翻译</button>
       </div>
+    </div>
+
+    <div class="sheet" id="modelSheet">
+      <div class="grabber"></div>
+      <h3 id="msTitle">转写模型</h3>
+      <p class="hint" id="msHint">模型下载后完全离线运行，不会上传音频</p>
+      <div class="model-list" id="msList"></div>
+      <div class="fmt-box" id="msCustom" hidden>
+        <div class="fmt-title">自定义模型</div>
+        <input class="model-input" id="msName" type="text" placeholder="文件名，例如 my-model.gguf" />
+        <input class="model-input" id="msUrl" type="url" placeholder="模型直链 https://…" />
+        <input class="model-input" id="msExtra" type="url" placeholder="词表直链（仅转写模型需要）" />
+        <div class="fmt-note">直链必须能直接下载文件，建议用 HuggingFace / ModelScope 的 resolve 链接</div>
+      </div>
+      <div class="fmt-note" id="msNote"></div>
+      <div class="model-actions">
+        <button class="mini-btn" id="msDelete">删除已下载</button>
+        <button class="btn-primary" id="msDownload">下载并启用</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="cloudSheet">
+      <div class="grabber"></div>
+      <h3>云端付费转写</h3>
+      <p class="hint">本机离线模型免费、不上传录音；需要更高精度或超长音频时，可以用这些在线服务（会联网，按量计费）。</p>
+      <div class="opt-list" id="cloudList"></div>
     </div>
 
     <div class="sheet" id="exportSheet">
@@ -584,27 +626,330 @@ function closeDrawer() {
   if (!document.querySelector('.sheet.show')) $('#backdrop').classList.remove('show');
 }
 
-/* ============================ 语言 ============================ */
+/* ============================ 多语言 ============================ */
 let LANG = 'zh';
-const I18N = {
-  zh: { settings: '设置', lang: '语言', theme: '界面配色', open: '打开', openSub: '本地音频', trash: '回收站' },
-  en: { settings: 'Settings', lang: 'Language', theme: 'Theme', open: 'Open', openSub: 'Local audio', trash: 'Trash' }
+
+/* 中文 → 英文对照表。
+   翻译在 DOM 层进行：静态页面、动态渲染、toast 提示都被覆盖；
+   带数字的句子先走 EN_RULES 正则；用户正文（逐字稿 / 摘要 / 笔记）打了
+   data-no-i18n，不会被误翻。新增文案只要在这里补一条即可。 */
+const EN = {
+  /* 通用 */
+  '录音笔记': 'RecordNotes', '设置': 'Settings', '语言': 'Language', '中文': 'Chinese',
+  '界面配色': 'Theme', '打开': 'Open', '本地音频': 'Local audio', '回收站': 'Trash',
+  '取消': 'Cancel', '保存': 'Save', '删除': 'Delete', '清空': 'Clear', '恢复': 'Restore',
+  '分享': 'Share', '收藏': 'Favorite', '已收藏': 'Favorited', '重命名': 'Rename',
+  '筛选': 'Filter', '全选': 'Select all', '取消全选': 'Clear selection',
+  '继续': 'Resume', '暂停': 'Pause', '播放': 'Play', '返回': 'Back',
+  '摘要': 'Summary', '逐字稿': 'Transcript', '原文': 'Original', '译文': 'Translation',
+  '翻译': 'Translate', '复制': 'Copy', '渲染': 'Rendered', '笔记文档': 'Notes',
+  '源码': 'Source', '复制全文': 'Copy all', '导出': 'Export', '话题': 'Topic', '时间': 'Date',
+  '今天': 'Today', '昨天': 'Yesterday', '未命名': 'Untitled', '原速': '1x',
+  '自动识别': 'Auto detect', '模型信息': 'Model info', '稍后再说': 'Later',
+  '彻底删除': 'Delete permanently', '删除后不可恢复': 'This cannot be undone',
+  '删除后先进入回收站，可在「设置 → 回收站」恢复；不会删除手机里的原始音频文件。':
+    'Deleted items go to Trash (Settings → Trash); original audio files are kept.',
+
+  /* 顶栏 / 列表 */
+  '录音中': 'Recording', '已暂停': 'Paused', '已保存': 'Saved',
+  '开始录音': 'Start recording', '暂停录音': 'Pause recording', '关闭设置': 'Close settings',
+  '导出与分享': 'Export and share', '后退十五秒': 'Back 15 seconds',
+  '前进十五秒': 'Forward 15 seconds', '编辑这一句': 'Edit this line',
+  '搜索标题、话题或转写内容': 'Search title, topic or transcript',
+  '已选 ': '', ' 项': ' selected', ' 条': '', ' 句': ' lines',
+  '还没有录音': 'No recordings yet',
+  '点右下角开始录音，或用右上角导入本地音频': 'Tap the button below to record, or import audio at top right',
+  '未转写': 'Not transcribed', '已转写': 'Transcribed', '转写中 ': 'Transcribing ',
+  '开始转写': 'Start transcribing', '重新转写': 'Transcribe again',
+  '已清除筛选': 'Filters cleared', '重置': 'Reset', '全部话题': 'All topics',
+  '最早': 'Earliest', '至今': 'Now', '已筛选 ': 'Filtered ',
+  '按时间筛选': 'Filter by date', '按话题筛选': 'Filter by topic',
+  '可选用预设区间，或在下方指定起止日期': 'Use a preset range, or set start and end dates below',
+  '选择话题标签，可与其它筛选叠加': 'Pick a topic tag; combines with other filters',
+  '单选，点选后即时生效': 'Single choice, applies immediately',
+  '自定义时间范围': 'Custom date range', '应用到筛选': 'Apply',
+  '请选择起始和结束日期': 'Pick start and end dates', '请先选择录音': 'Pick a recording first',
+
+  /* 详情 / 翻译 */
+  '还没有转写内容': 'No transcript yet', '当前环境不支持翻译': 'Translation is not available here',
+  '已切换到译文': 'Switched to translation', '翻译中…': 'Translating…',
+  '翻译启动失败': 'Could not start translation', '翻译完成': 'Translation complete',
+  '逐字稿 · 原文 + 译文': 'Transcript · original + translation',
+  '正在离线转写…': 'Transcribing offline…', '这条录音还没有转写': 'This recording is not transcribed yet',
+  '本地 SenseVoice-Small 离线转写，不上传录音': 'On-device SenseVoice-Small; audio never uploaded',
+  '（本条录音尚未生成摘要）': '(No summary for this recording)',
+  '（暂无摘要）': '(No summary)', '## 摘要': '## Summary', '## 逐字稿': '## Transcript',
+  '翻译中 ': 'Translating ', '翻译失败': 'Translation failed', '翻译失败：': 'Translation failed: ',
+  '已加入收藏': 'Added to favorites', '已取消收藏': 'Removed from favorites',
+  '已开始离线转写…': 'Offline transcription started…', '已复制转写全文': 'Full transcript copied',
+  '已复制': 'Copied', '复制失败': 'Copy failed', '分享给他人': 'Share',
+  '删除这条录音': 'Delete this recording', '已删除': 'Deleted',
+  ' · 可修改说话人和文字内容': ' · speaker and text are editable',
+
+  /* 说话人 / 编辑 */
+  '说话人管理': 'Speakers', '说话人': 'Speaker', '说话人 ': 'Speaker ',
+  '文字内容': 'Text', '保存修改': 'Save changes', '编辑这一句': 'Edit this line',
+  '已有发言的说话人直接列出；没有发言的可以先新增，再批量标识句子':
+    'Speakers with lines are listed; add a new one and then assign sentences',
+  '批量标识句子': 'Assign sentences', '勾选要标记的句子': 'Tick the sentences to tag',
+  '内容不能为空': 'Text cannot be empty', '这一句已更新': 'Line updated',
+  '请输入话题名称': 'Enter a topic name', '请输入说话人名称': 'Enter a speaker name',
+  '请先选择一个说话人': 'Pick a speaker first', '请输入标题': 'Enter a title',
+  '（尚未转写）': '(not transcribed)',
+  '批量标识句子（请先选择说话人）': 'Assign sentences (pick a speaker first)',
+  '把句子批量标识为「': 'Assign sentences to "', '批量标识为「': 'Assign to "',
+  '勾选要标为「': 'Tick the lines for "', '」的句子；本身已属于他的会自动选中': '"; their own lines are pre-selected',
+  '」已存在': '" already exists', '已新增说话人「': 'Speaker added "',
+  '」，可用批量标识给他分句': '"; use Assign sentences to tag lines',
+  '已把「': 'Changed "', '」的 ': '" ', ' 句改为「': ' lines to "', ' 句标识为「': ' lines to "',
+  '已把 ': 'Assigned ', '）。点选后可改名，或把句子批量标识给他。': '. Tap to rename, or assign sentences in bulk.',
+  ' 位有发言': ' with lines', ' 位待标识': ' unassigned', ' 位说话人': ' speakers',
+  '保存（已选 ': 'Save (', ' 句）': ' selected)',
+
+  /* 话题 */
+  '话题标签': 'Topic tag', '点选已有话题，或输入一个新的标签': 'Pick an existing topic or type a new one',
+  '话题已更新为 #': 'Topic updated to #', '会议': 'Meeting', '通话': 'Call', '灵感': 'Idea',
+  '客户': 'Client', '学习': 'Study', '导入': 'Import', '未分类': 'Uncategorized',
+
+  /* 重命名 / 删除 / 导出 */
+  '重命名录音': 'Rename recording', '给这条录音起个好记的名字': 'Give this recording a memorable name',
+  '录音标题': 'Recording title', '删除录音': 'Delete recording',
+  '选择格式': 'Choose format', '导出 Markdown (.md)': 'Export Markdown (.md)',
+  '导出纯文本 (.txt)': 'Export plain text (.txt)', '导出字幕 (.srt)': 'Export subtitles (.srt)',
+  '输入名称，如 会议 / 客户访谈': 'Enter a name, e.g. Meeting / Client call',
+  '输入名称后会自动追加每条录音的时间，例如「会议 ': 'The recording time is appended automatically, e.g. "Meeting ',
+  '批量重命名 ': 'Renamed ', ' 条录音': ' recordings', '已重命名为「': 'Renamed to "',
+
+  /* 回收站 / 导入 */
+  '清空回收站': 'Empty trash', '回收站是空的': 'Trash is empty', '已恢复': 'Restored',
+  '已彻底删除': 'Permanently deleted', '回收站已清空': 'Trash emptied',
+  '删除的录音先放在这里，可以恢复，也可以彻底删除':
+    'Deleted recordings land here; restore them or delete permanently',
+  '打开本地音频': 'Open local audio', '本机音频': 'On this device', '支持的格式': 'Supported formats',
+  '只列出受支持的音频文件，选中后自动离线转写':
+    'Only supported audio files are listed; picking one transcribes offline',
+  '网页演示环境不扫描本机音频，点下面「浏览其它位置」即可导入。':
+    'The web preview cannot scan device audio; use "Browse other locations" below to import.',
+  '正在扫描本机音频…': 'Scanning device audio…',
+  '没有找到受支持的音频文件，可以点下面「浏览其它位置」到文件夹里找。':
+    'No supported audio found; use "Browse other locations" below.',
+  '正在导入「': 'Importing "', '0 个': '0', ' 个': '',
+
+  /* 首次翻译弹层 */
+  '首次使用翻译': 'First-time translation',
+  '需要先下载离线翻译模型，建议在 Wi-Fi 下进行；下载完成后完全离线，不再联网。':
+    'Download the offline translation model once, preferably on Wi-Fi. Afterwards it works fully offline.',
+  '腾讯混元 HY-MT1.5': 'Tencent Hunyuan HY-MT1.5', '1.8B 参数': '1.8B params',
+  'Q4_K_M 量化': 'Q4_K_M quantized', '中 ⇄ 英': 'ZH ⇄ EN', '约 1.08 GB': '~1.08 GB',
+  '魔搭 ModelScope': 'ModelScope',
+  '首次下载 + 加载约 1–3 分钟；之后每句翻译约 1–3 秒。':
+    'First download and load takes 1-3 min; each sentence then takes 1-3 s.',
+  '下载并翻译': 'Download and translate',
+
+  /* 主题 */
+  '中心灰': 'Slate', '米白': 'Ivory', '豆沙绿': 'Bean', '纸张色': 'Paper',
+
+  /* 启动 / 原生事件 */
+  '正在准备离线模型…': 'Preparing offline model…', '正在准备离线模型': 'Preparing offline model',
+  '完全离线': 'Fully offline', '录音不上传': 'Audio stays on device',
+  '模型已就绪': 'Model ready', '转写失败': 'Transcription failed',
+  '没有麦克风权限，请在系统设置里允许': 'No microphone permission; allow it in system settings',
+  '请在手机 App 中使用录音': 'Recording works in the Android app only',
+  '，开始转写…': ', transcribing…',
+  'SenseVoice-Small 已就绪': 'SenseVoice-Small ready',
+  '正在下载转写大模型 ': 'Downloading transcription model ',
+  '正在下载声纹模型 ': 'Downloading speaker model ',
+  '正在下载翻译大模型 ': 'Downloading translation model ',
+  '转写模型已就绪': 'Transcription model ready', '翻译模型已就绪': 'Translation model ready',
+  '翻译模型下载失败，请检查网络后重试': 'Translation model download failed; check your network',
+  '准备下载翻译模型（约 1.08 GB）': 'Preparing to download the translation model (~1.08 GB)',
+  '正在加载翻译模型…': 'Loading translation model…', '解码音频…': 'Decoding audio…',
+  '加载离线模型…': 'Loading offline model…', '音频文件不存在': 'Audio file not found',
+  '模型或音频不可用': 'Model or audio unavailable', '正在转写 ': 'Transcribing ',
+  '正在翻译 ': 'Translating ', '正在区分说话人（检测到 ': 'Detecting speakers (found ',
+  ' 位）': ')',
+
+  /* 模型管理 */
+  '本地模型': 'Local models', '转写模型': 'ASR model', '翻译模型': 'MT model',
+  '选择转写模型': 'Transcription model', '选择翻译模型': 'Translation model',
+  '在线能力': 'Online', '付费转写': 'Paid ASR', '云端付费转写': 'Cloud transcription',
+  '自定义模型': 'Custom model', '删除已下载': 'Delete download', '下载并启用': 'Download and use',
+  '已下载': 'Downloaded', '使用中': 'In use', '未下载': 'Not downloaded',
+  '准备下载…': 'Preparing download…', '下载失败': 'Download failed',
+  '下载失败，请检查网络后重试': 'Download failed; check your network',
+  '本地模型已删除': 'Local model deleted', '已删除本地模型': 'Local model deleted',
+  '请填写文件名和直链': 'Enter a file name and a direct URL',
+  '已切换到「': 'Switched to "', '已选择「': 'Selected "', '」': '"',
+  '本机离线转写，下载后不再联网；切换模型会自动重新加载':
+    'On-device offline transcription; switching models reloads automatically',
+  '本机离线翻译（中 ⇄ 英）；模型越大质量越好、速度越慢':
+    'On-device offline translation (ZH ⇄ EN); larger models are better but slower',
+  '模型下载后完全离线运行，不会上传音频': 'Models run fully offline; audio is never uploaded',
+  '文件名，例如 my-model.gguf': 'File name, e.g. my-model.gguf',
+  '模型直链 https://…': 'Direct model URL https://…',
+  '词表直链（仅转写模型需要）': 'Token list URL (ASR only)',
+  '直链必须能直接下载文件，建议用 HuggingFace / ModelScope 的 resolve 链接':
+    'The URL must serve the file directly; use HuggingFace / ModelScope resolve links',
+  '准备下载翻译模型（': 'Preparing to download the translation model (',
+  '本机离线模型免费、不上传录音；需要更高精度或超长音频时，可以用这些在线服务（会联网，按量计费）。':
+    'On-device models are free and private; for higher accuracy or very long audio use these online services (network required, pay per use).',
+  '中文长音频、说话人分离，按分钟计费': 'Chinese long audio with speaker separation, billed per minute',
+  '阿里云会议转写 + 摘要 + 翻译，按量计费': 'Alibaba Cloud meeting transcription + summary + translation',
+  '录音文件识别 API，按量计费': 'Recording file recognition API, pay per use',
+  '多语种转写与翻译，按分钟计费': 'Multilingual transcription and translation, billed per minute',
+  '讯飞听见': 'iFlytek Tingjian', '通义听悟': 'Alibaba Tingwu', '腾讯云语音识别': 'Tencent Cloud ASR',
+  '讯飞 / 通义 / 腾讯云': 'iFlytek / Tingwu / Tencent Cloud',
+  '下载中 ': 'Downloading ', '录音': 'recording', '已就绪': 'ready',
+  '模型准备失败：': 'Model preparation failed: ', '模型下载失败：': 'Model download failed: ',
+  '转写模型下载失败，请检查网络后重试': 'Transcription model download failed; check your network',
+  '还没有配置模型直链': 'No model URL configured yet',
+  '无法打开链接': 'Cannot open the link', '正在下载中，请稍候': 'Download in progress, please wait'
 };
+
+/* 带数字 / 变量的句子先走正则 */
+const EN_RULES = [
+  [/^共 (\d+) 条录音 · (\d+) 条已转写$/, 'Total $1 · $2 transcribed'],
+  [/^已选 (\d+) 项$/, '$1 selected'],
+  [/^(\d+) 位说话人$/, '$1 speakers'],
+  [/^(\d+) 句$/, '$1 lines'],
+  [/^(\d+) 条录音$/, '$1 recordings'],
+  [/^已筛选 (\d+) 条$/, 'Filtered $1'],
+  [/^(\d+) 个$/, '$1'],
+  [/^(\d{4})年(\d+)月(\d+)日$/, '$2/$3/$1'],
+  [/^(\d+)月(\d+)日$/, '$1/$2'],
+  [/^说话人 (\d+)$/, 'Speaker $1'],
+  [/^转写中 (\d+)%$/, 'Transcribing $1%']
+];
+
+const CJK_RE = /[\u4e00-\u9fff]/;
+let EN_KEYS = null;
+function buildEnKeys() {
+  EN_KEYS = Object.keys(EN).filter((k) => CJK_RE.test(k)).sort((a, b) => b.length - a.length);
+  if (!EN_KEYS.length) EN_KEYS = null;
+}
+
+function trText(raw) {
+  if (LANG !== 'en' || !raw || !CJK_RE.test(raw)) return raw;
+  if (!EN_KEYS) buildEnKeys();
+  const m = raw.match(/^(\s*)([\s\S]*?)(\s*)$/);
+  const lead = m[1], core = m[2], tail = m[3];
+  if (!core) return raw;
+  for (let i = 0; i < EN_RULES.length; i++) {
+    if (EN_RULES[i][0].test(core)) return lead + core.replace(EN_RULES[i][0], EN_RULES[i][1]) + tail;
+  }
+  let out = core;
+  for (let i = 0; i < EN_KEYS.length; i++) {
+    const k = EN_KEYS[i];
+    if (out.indexOf(k) !== -1) out = out.split(k).join(EN[k]);
+  }
+  return lead + out + tail;
+}
+
+/* ------------------- DOM 翻译 ------------------- */
+/* 用户正文（逐字稿、译文、摘要、笔记、语言按钮本身）不翻译 */
+const SKIP_I18N = '[data-no-i18n], .txt, .tr-text, #sumMd, #mdView, #langSeg';
+const NODE_ZH = new WeakMap();
+const ATTR_ZH = new WeakMap();
+const I18N_ATTRS = ['placeholder', 'title', 'aria-label'];
+let i18nObs = null;
+let i18nGuard = 0;
+
+function trNode(node) {
+  if (!node) return;
+  const p = node.parentElement;
+  if (p && p.closest && p.closest(SKIP_I18N)) return;
+  const cur = node.nodeValue;
+  if (!cur) return;
+  const rec = NODE_ZH.get(node);
+  if (LANG !== 'en') {
+    if (rec && cur === rec.out && rec.out !== rec.zh) {
+      i18nGuard++; node.nodeValue = rec.zh; i18nGuard--;
+    }
+    return;
+  }
+  if (rec && cur === rec.out) return;
+  if (!CJK_RE.test(cur)) { NODE_ZH.set(node, { zh: cur, out: cur }); return; }
+  const out = trText(cur);
+  NODE_ZH.set(node, { zh: cur, out: out });
+  if (out !== cur) { i18nGuard++; node.nodeValue = out; i18nGuard--; }
+}
+
+function trAttrs(el) {
+  if (!el || !el.getAttribute) return;
+  for (let i = 0; i < I18N_ATTRS.length; i++) {
+    const attr = I18N_ATTRS[i];
+    const v = el.getAttribute(attr);
+    if (!v) continue;
+    let map = ATTR_ZH.get(el);
+    if (!map) { map = {}; ATTR_ZH.set(el, map); }
+    const rec = map[attr];
+    if (LANG !== 'en') {
+      if (rec && v === rec.out && rec.out !== rec.zh) el.setAttribute(attr, rec.zh);
+      continue;
+    }
+    if (rec && v === rec.out) continue;
+    if (!CJK_RE.test(v)) continue;
+    const out = trText(v);
+    map[attr] = { zh: v, out: out };
+    if (out !== v) el.setAttribute(attr, out);
+  }
+}
+
+function localize(root) {
+  if (!root) return;
+  if (root.nodeType === 3) { trNode(root); return; }
+  if (root.nodeType !== 1) return;
+  i18nGuard++;
+  try {
+    trAttrs(root);
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    let n = walker.nextNode();
+    while (n) { trNode(n); n = walker.nextNode(); }
+    const els = root.querySelectorAll('[placeholder],[title],[aria-label]');
+    for (let i = 0; i < els.length; i++) trAttrs(els[i]);
+  } finally {
+    i18nGuard--;
+  }
+}
+
+function startI18nObserver() {
+  if (i18nObs || !window.MutationObserver) return;
+  i18nObs = new MutationObserver((muts) => {
+    if (LANG !== 'en' || i18nGuard) return;
+    for (let i = 0; i < muts.length; i++) {
+      const m = muts[i];
+      if (m.type === 'characterData') trNode(m.target);
+      else if (m.type === 'attributes') trAttrs(m.target);
+      else for (let j = 0; j < m.addedNodes.length; j++) localize(m.addedNodes[j]);
+    }
+  });
+  i18nObs.observe(document.body, {
+    childList: true, subtree: true, characterData: true,
+    attributes: true, attributeFilter: I18N_ATTRS
+  });
+}
+
+function stopI18nObserver() {
+  if (i18nObs) { i18nObs.disconnect(); i18nObs = null; }
+}
 
 function applyLang(l) {
   LANG = l === 'en' ? 'en' : 'zh';
-  const t = I18N[LANG];
   document.documentElement.setAttribute('lang', LANG === 'en' ? 'en' : 'zh-CN');
   $$('#langSeg button').forEach((b) => b.classList.toggle('active', b.dataset.lang === LANG));
-  const head = document.querySelector('.drawer-head span');
-  if (head) head.textContent = t.settings;
-  const setTxt = (id, txt) => { const el = $('#' + id); if (el) el.textContent = txt; };
-  setTxt('langLabel', t.lang);
-  setTxt('themeLabel', t.theme);
-  setTxt('openLocalTxt', t.open);
-  setTxt('openLocalSub', t.openSub);
-  setTxt('trashTxt', t.trash);
   try { localStorage.setItem('rec-lang', LANG); } catch (e) {}
+  /* 先重画依赖语言的区块，再整体翻译 */
+  try {
+    buildThemeGrid();
+    /* 重建后要把当前配色的选中态补回来 */
+    applyTheme(document.documentElement.getAttribute('data-theme') || 'paper');
+  } catch (e) {}
+  try { renderAll(); } catch (e) {}
+  try {
+    if (play.rec) { renderTags(play.rec); renderTranscript(); renderSummary(); }
+  } catch (e) {}
+  localize(document.body);
+  if (LANG === 'en') startI18nObserver(); else stopI18nObserver();
   if (NATIVE && NATIVE.setLang) {
     try { NATIVE.setLang(LANG); } catch (e) {}
   }
@@ -735,9 +1080,13 @@ function renderList() {
       d.textContent = rec.dateLabel;
       wrap.appendChild(d);
     }
-    const media = rec.status === 'done'
-      ? '<div class="mini-wave">' + waveHeights(rec, 46).map((h) => '<i style="height:' + Math.round(h * 28) + 'px"></i>').join('') + '</div>'
-      : '<div class="progress-line"><span style="width:' + (rec.status === 'processing' ? Math.max(6, rec.progress || 0) : 0) + '%"></span></div>';
+    /* 只有真正在转写时才画进度条；未转写的卡片不显示任何进度条 */
+    let media = '';
+    if (rec.status === 'done') {
+      media = '<div class="mini-wave">' + waveHeights(rec, 46).map((h) => '<i style="height:' + Math.round(h * 28) + 'px"></i>').join('') + '</div>';
+    } else if (rec.status === 'processing') {
+      media = '<div class="progress-line"><span style="width:' + Math.max(6, rec.progress || 0) + '%"></span></div>';
+    }
 
     const swipe = document.createElement('div');
     swipe.className = 'swipe-wrap';
@@ -2105,6 +2454,12 @@ window.__native = function (event, payload) {
       onRecPaused(payload);
     } else if (event === 'recordResumed') {
       onRecResumed(payload);
+    } else if (event === 'modelMarket') {
+      MARKET = payload || {};
+      updateModelRows();
+      if ($('#modelSheet') && $('#modelSheet').classList.contains('show')) renderModelList();
+    } else if (event === 'modelDl') {
+      onModelDl(payload);
     } else if (event === 'translateProgress') {
       trState.busy = true;
       const pct = payload && payload.progress ? payload.progress : 0;
@@ -2262,6 +2617,18 @@ function bind() {
 
   $('#searchInput').addEventListener('input', (e) => { state.keyword = e.target.value; renderList(); });
   $('#settingsBtn').addEventListener('click', openDrawer);
+  $('#asrModelBtn').addEventListener('click', () => openModelSheet('asr'));
+  $('#trModelBtn').addEventListener('click', () => openModelSheet('tr'));
+  $('#cloudModelBtn').addEventListener('click', openCloudSheet);
+  $('#msDownload').addEventListener('click', downloadCurrentModel);
+  $('#msDelete').addEventListener('click', () => {
+    if (!NATIVE || !NATIVE.deleteModel) return;
+    NATIVE.deleteModel(msKind);
+    loadModelMarket();
+    renderModelList();
+    $('#msNote').textContent = '本地模型已删除';
+    toast('已删除本地模型');
+  });
   $$('#langSeg button').forEach((b) => {
     b.addEventListener('click', () => { applyLang(b.dataset.lang); toast(LANG === 'en' ? 'Language: English' : '语言：中文'); });
   });
@@ -2347,6 +2714,150 @@ function bind() {
   });
 }
 
+/* ============================ 模型管理 ============================ */
+let MARKET = { asr: null, tr: null };
+let msKind = 'asr';
+
+const CLOUD_ASR = [
+  { name: '讯飞听见', note: '中文长音频、说话人分离，按分钟计费', url: 'https://www.iflyrec.com/' },
+  { name: '通义听悟', note: '阿里云会议转写 + 摘要 + 翻译，按量计费', url: 'https://tingwu.aliyun.com/' },
+  { name: '腾讯云语音识别', note: '录音文件识别 API，按量计费', url: 'https://cloud.tencent.com/product/asr' },
+  { name: 'OpenAI Whisper API', note: '多语种转写与翻译，按分钟计费', url: 'https://platform.openai.com/docs/guides/speech-to-text' }
+];
+
+function loadModelMarket() {
+  if (!NATIVE || !NATIVE.getModelMarket) return;
+  try { MARKET = JSON.parse(NATIVE.getModelMarket() || '{}') || {}; } catch (e) { MARKET = {}; }
+  updateModelRows();
+}
+
+function updateModelRows() {
+  /* 抽屉里不再显示模型名（会挤成两行），只留 title，长按时还能看到当前用的是哪个 */
+  const a = MARKET.asr, t = MARKET.tr;
+  const b1 = $('#asrModelBtn');
+  const b2 = $('#trModelBtn');
+  if (b1 && a) b1.title = a.activeName + (a.activeReady ? '' : ' · 未下载');
+  if (b2 && t) b2.title = t.activeName + (t.activeReady ? '' : ' · 未下载');
+}
+
+function currentSpec() {
+  const data = MARKET[msKind] || { list: [] };
+  const sel = data.selected || '';
+  const list = data.list || [];
+  for (let i = 0; i < list.length; i++) if (list[i].id === sel) return list[i];
+  return list[0] || { id: '' };
+}
+
+function openModelSheet(kind) {
+  msKind = kind;
+  closeDrawer();
+  $('#msTitle').textContent = kind === 'asr' ? '选择转写模型' : '选择翻译模型';
+  $('#msHint').textContent = kind === 'asr'
+    ? '本机离线转写，下载后不再联网；切换模型会自动重新加载'
+    : '本机离线翻译（中 ⇄ 英）；模型越大质量越好、速度越慢';
+  $('#msNote').textContent = '';
+  const cur = currentSpec();
+  $('#msCustom').hidden = cur.id !== 'custom';
+  if (cur.id === 'custom') fillCustom(kind);
+  renderModelList();
+  openSheet($('#modelSheet'));
+}
+
+function fillCustom(kind) {
+  const c = (MARKET[kind] || {}).custom || {};
+  $('#msName').value = c.file || '';
+  $('#msUrl').value = c.url || '';
+  $('#msExtra').value = c.extraUrl || '';
+}
+
+function renderModelList() {
+  const data = MARKET[msKind] || { list: [] };
+  const box = $('#msList');
+  box.innerHTML = '';
+  (data.list || []).forEach((it) => {
+    const b = document.createElement('button');
+    b.className = 'model-row' + (it.active ? ' on' : '');
+    b.innerHTML = '<span class="model-main">' +
+        '<span class="model-name">' + escapeHtml(it.name) + '</span>' +
+        '<small class="model-note">' + escapeHtml(it.note || '') + '</small>' +
+      '</span>' +
+      '<span class="model-meta">' + escapeHtml(it.size || '') +
+        (it.ready ? '<i class="model-ok">已下载</i>' : '') +
+        (it.active ? '<i class="model-cur">使用中</i>' : '') +
+      '</span>';
+    b.addEventListener('click', () => pickModel(it.id));
+    box.appendChild(b);
+  });
+}
+
+function pickModel(id) {
+  if (NATIVE && NATIVE.selectModel) NATIVE.selectModel(msKind, id);
+  loadModelMarket();
+  if (id === 'custom') fillCustom(msKind);
+  $('#msCustom').hidden = id !== 'custom';
+  renderModelList();
+  const s = currentSpec();
+  if (id !== 'custom') toast(s.ready ? '已切换到「' + s.name + '」' : '已选择「' + s.name + '」');
+}
+
+function saveCustomModel() {
+  const file = $('#msName').value.trim();
+  const url = $('#msUrl').value.trim();
+  const extraUrl = $('#msExtra').value.trim();
+  if (!file || !url) { toast('请填写文件名和直链'); return false; }
+  const o = {
+    file: file,
+    url: url,
+    family: msKind === 'asr' ? 'sensevoice' : 'chat',
+    extraFile: '',
+    extraUrl: extraUrl
+  };
+  if (msKind === 'asr' && extraUrl) o.extraFile = file.replace(/\.onnx$/i, '') + '.tokens.txt';
+  if (NATIVE && NATIVE.saveCustomModel) NATIVE.saveCustomModel(msKind, JSON.stringify(o));
+  loadModelMarket();
+  return true;
+}
+
+function downloadCurrentModel() {
+  if (!NATIVE || !NATIVE.downloadModel) return;
+  const cur = currentSpec();
+  if (cur.id === 'custom' && !$('#msCustom').hidden) {
+    if (!saveCustomModel()) return;
+  }
+  $('#msNote').textContent = '准备下载…';
+  NATIVE.downloadModel(msKind);
+}
+
+function onModelDl(p) {
+  if (!p) return;
+  loadModelMarket();
+  if (p.kind !== msKind) return;
+  const note = $('#msNote');
+  if (note) note.textContent = p.message || (p.progress >= 0 ? '下载中 ' + p.progress + '%' : '');
+  if (p.done) {
+    renderModelList();
+    if (note) note.textContent = p.progress < 0 ? '下载失败，请检查网络后重试' : '模型已就绪';
+    toast(p.progress < 0 ? '下载失败' : '模型已就绪');
+  }
+}
+
+function openCloudSheet() {
+  closeDrawer();
+  const box = $('#cloudList');
+  box.innerHTML = '';
+  CLOUD_ASR.forEach((s) => {
+    const b = document.createElement('button');
+    b.className = 'cloud-row';
+    b.innerHTML = '<strong>' + escapeHtml(s.name) + '</strong><small>' + escapeHtml(s.note) + '</small>';
+    b.addEventListener('click', () => {
+      if (NATIVE && NATIVE.openUrl) NATIVE.openUrl(s.url);
+      else window.open(s.url, '_blank');
+    });
+    box.appendChild(b);
+  });
+  openSheet($('#cloudSheet'));
+}
+
 /* ============================ 启动 ============================ */
 (function init() {
   buildThemeGrid();
@@ -2365,6 +2876,7 @@ function bind() {
       updateModelUI();
       if (st.trashCount) updateTrashCount(st.trashCount);
       hydrateUiPrefs();
+      loadModelMarket();
       migrateTopics();
     } catch (e) { console.error('getState', e); }
     /* 从桌面快捷方式进入后台录音后，回到界面要能接着显示录音状态 */

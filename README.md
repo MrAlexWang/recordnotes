@@ -78,6 +78,7 @@ build-llama/jni/                   翻译引擎 JNI 封装（llama.cpp）
 design/                            浏览器预览页（自动生成，含演示数据）
 tools/                             生成脚本（页面合成、AAR 处理、APK 合并）
 build.ps1                          一键构建
+vibe-coding/                       工程规则与需求文档（改工程前先看这里）
 ```
 
 ### 隐私

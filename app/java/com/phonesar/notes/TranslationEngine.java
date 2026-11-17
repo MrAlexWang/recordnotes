@@ -4,32 +4,15 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.List;
-import java.util.Locale;
 
 /**
- * 离线翻译引擎：腾讯 HY-MT1.5-1.8B（GGUF，llama.cpp）。
- * 模型不打进 APK，首次使用时从魔搭（ModelScope）下载，之后完全离线。
+ * 离线翻译引擎：llama.cpp + GGUF。
+ * 具体用哪个模型由 ModelManager 决定（默认腾讯 HY-MT1.5-1.8B，也可以换成
+ * Qwen2.5 这类通用小模型，或用户自己的 GGUF 直链），模型不打进 APK。
  */
 public class TranslationEngine {
 
     private static final String TAG = "Translate";
-
-    /** Q4_K_M 量化版本：1,133,080,512 字节 */
-    static final long MODEL_BYTES = 1133080512L;
-    static final String MODEL_NAME = "HY-MT1.5-1.8B-Q4_K_M.gguf";
-    static final String MODEL_SHA256 = "4383ac0c3c8e476de98ff979c2a3f069f8c4fb385e7860cf2d28da896cc477c7";
-
-    /** 主源走魔搭（国内直连），备用走 HuggingFace */
-    static final String[] MODEL_URLS = {
-            "https://modelscope.cn/models/Tencent-Hunyuan/HY-MT1.5-1.8B-GGUF/resolve/master/" + MODEL_NAME,
-            "https://huggingface.co/tencent/HY-MT1.5-1.8B-GGUF/resolve/main/" + MODEL_NAME
-    };
 
     public interface Progress {
         /** percent < 0 表示失败 */
@@ -37,132 +20,67 @@ public class TranslationEngine {
     }
 
     private final Context ctx;
-    private final File dir;
-    private final File modelFile;
-    private final File partFile;
+    private final ModelManager models;
     private long nativeHandle = 0;
-    private volatile boolean downloading = false;
+    private String loadedId = "";
 
-    public TranslationEngine(Context ctx) {
+    public TranslationEngine(Context ctx, ModelManager models) {
         this.ctx = ctx.getApplicationContext();
-        File ext = this.ctx.getExternalFilesDir("translate");
-        this.dir = ext != null ? ext : new File(this.ctx.getFilesDir(), "translate");
-        this.modelFile = new File(dir, MODEL_NAME);
-        this.partFile = new File(dir, MODEL_NAME + ".part");
-        if (!dir.exists() && !dir.mkdirs()) Log.w(TAG, "mkdir translate failed");
+        this.models = models;
+    }
+
+    /** 当前生效的翻译模型 */
+    public ModelManager.Spec spec() {
+        return models.active("tr");
     }
 
     public boolean isReady() {
-        return modelFile.exists() && modelFile.length() == MODEL_BYTES;
+        return models.ready(spec());
     }
 
     public boolean isDownloading() {
-        return downloading;
+        return models.downloading("tr");
     }
 
     public long downloadedBytes() {
-        return partFile.exists() ? partFile.length() : (modelFile.exists() ? modelFile.length() : 0);
+        return models.downloadedBytes(spec());
     }
 
     public String statusJson() {
-        return "{\"ready\":" + isReady() + ",\"downloading\":" + downloading
-                + ",\"downloaded\":" + downloadedBytes() + ",\"total\":" + MODEL_BYTES + "}";
+        ModelManager.Spec s = spec();
+        return "{\"ready\":" + models.ready(s)
+                + ",\"downloading\":" + models.downloading("tr")
+                + ",\"downloaded\":" + models.downloadedBytes(s)
+                + ",\"total\":" + Math.max(s.bytes, 0)
+                + ",\"id\":" + org.json.JSONObject.quote(s.id)
+                + ",\"name\":" + org.json.JSONObject.quote(s.name) + "}";
     }
 
-    /** 断点续传下载翻译模型。 */
+    /** 下载当前翻译模型（断点续传）。 */
     public boolean download(Progress p) {
-        if (isReady()) {
+        ModelManager.Spec s = spec();
+        if (models.ready(s)) {
             if (p != null) p.onProgress(100, "翻译模型已就绪");
             return true;
         }
-        downloading = true;
-        boolean ok = false;
-        try {
-            for (String urlStr : MODEL_URLS) {
-                try {
-                    if (fetch(urlStr, p)) {
-                        ok = true;
-                        break;
-                    }
-                } catch (Exception e) {
-                    Log.w(TAG, "download from " + urlStr + " failed: " + e.getMessage());
-                }
-            }
-            if (ok) {
-                if (partFile.exists() && !partFile.renameTo(modelFile)) {
-                    Log.e(TAG, "rename model failed");
-                    ok = false;
-                }
-                if (ok && modelFile.length() != MODEL_BYTES) {
-                    Log.e(TAG, "size mismatch " + modelFile.length());
-                    modelFile.delete();
-                    ok = false;
-                }
-            }
-        } finally {
-            downloading = false;
-        }
-        if (p != null) {
-            if (ok) p.onProgress(100, "翻译模型已就绪");
-            else p.onProgress(-1, "翻译模型下载失败，请检查网络后重试");
-        }
-        return ok;
-    }
-
-    private boolean fetch(String urlStr, Progress p) throws Exception {
-        long have = partFile.exists() ? partFile.length() : 0;
-        if (have >= MODEL_BYTES) return true;
-
-        HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
-        conn.setConnectTimeout(20000);
-        conn.setReadTimeout(30000);
-        conn.setRequestProperty("User-Agent", "RecordNotes/1.0");
-        if (have > 0) conn.setRequestProperty("Range", "bytes=" + have + "-");
-        int code = conn.getResponseCode();
-        if (code != 200 && code != 206) {
-            conn.disconnect();
-            throw new java.io.IOException("HTTP " + code);
-        }
-        // 服务器不支持断点续传就从 0 开始
-        if (code == 200 && have > 0) {
-            have = 0;
-            if (partFile.exists() && !partFile.delete()) Log.w(TAG, "delete part failed");
-        }
-
-        long total = MODEL_BYTES;
-        long done = have;
-        long lastEmit = 0;
-        try (InputStream in = conn.getInputStream();
-             RandomAccessFile raf = new RandomAccessFile(partFile, "rw")) {
-            raf.seek(have);
-            byte[] buf = new byte[256 * 1024];
-            int r;
-            while ((r = in.read(buf)) > 0) {
-                raf.write(buf, 0, r);
-                done += r;
-                long now = System.currentTimeMillis();
-                if (p != null && now - lastEmit > 700) {
-                    lastEmit = now;
-                    int pct = (int) (done * 100 / total);
-                    p.onProgress(Math.min(99, pct), String.format(Locale.US,
-                            "正在下载翻译大模型 %d%%（%d / %d MB）", pct, done / 1048576, total / 1048576));
-                }
-            }
-        } finally {
-            conn.disconnect();
-        }
-        return partFile.length() >= MODEL_BYTES;
+        return models.download(s, (pct, msg) -> {
+            if (p != null) p.onProgress(pct, msg);
+        });
     }
 
     /* -------------------------- 推理 -------------------------- */
 
     public synchronized void load(int threads) throws Exception {
-        if (nativeHandle != 0) return;
-        if (!isReady()) throw new IllegalStateException("翻译模型未下载");
+        ModelManager.Spec s = spec();
+        if (nativeHandle != 0 && s.id.equals(loadedId)) return;
+        if (!models.ready(s)) throw new IllegalStateException("翻译模型未下载");
+        release();
         long t0 = System.currentTimeMillis();
-        nativeHandle = nativeInit(modelFile.getAbsolutePath(), threads);
+        File model = models.fileOf(s);
+        nativeHandle = nativeInit(model.getAbsolutePath(), threads);
         if (nativeHandle == 0) throw new IllegalStateException("翻译模型加载失败");
-        Log.w(TAG, "translation model loaded in " + (System.currentTimeMillis() - t0) + "ms");
+        loadedId = s.id;
+        Log.w(TAG, "translation model(" + s.id + ") loaded in " + (System.currentTimeMillis() - t0) + "ms");
     }
 
     /** 逐句翻译：中文→英文，非中文→中文。 */
@@ -171,16 +89,9 @@ public class TranslationEngine {
         if (text == null || text.trim().isEmpty()) return "";
         boolean cjk = containsCJK(text);
         String target = cjk ? "English" : "Chinese";
-        String prompt = buildPrompt(text, target);
+        String prompt = buildPrompt(spec().family, text, target);
         String out = nativeTranslate(nativeHandle, prompt);
         return out == null ? "" : out.trim();
-    }
-
-    public synchronized void translateAll(List<String> texts, Progress p) throws Exception {
-        int n = texts.size();
-        for (int i = 0; i < n; i++) {
-            if (p != null) p.onProgress((i * 100) / Math.max(1, n), "正在翻译 " + (i + 1) + "/" + n);
-        }
     }
 
     public synchronized void release() {
@@ -190,6 +101,7 @@ public class TranslationEngine {
             } catch (Throwable ignored) {
             }
             nativeHandle = 0;
+            loadedId = "";
         }
     }
 
@@ -201,9 +113,15 @@ public class TranslationEngine {
         return false;
     }
 
-    private static String buildPrompt(String text, String targetLang) {
-        return "Translate the following segment into " + targetLang
-                + ", without additional explanation.\n\n" + text;
+    /** 不同模型的提示词不一样：翻译专用模型要求极简指令，通用对话模型要交代角色。 */
+    private static String buildPrompt(String family, String text, String targetLang) {
+        if ("hymt".equals(family)) {
+            return "Translate the following segment into " + targetLang
+                    + ", without additional explanation.\n\n" + text;
+        }
+        return "You are a professional translator. Translate the text below into " + targetLang
+                + ". Output only the translation, without explanation or quotes.\n\n"
+                + "Text: " + text + "\nTranslation:";
     }
 
     /* -------------------------- JNI -------------------------- */

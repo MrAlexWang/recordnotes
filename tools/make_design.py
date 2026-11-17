@@ -137,6 +137,70 @@ SHIM = r"""
   function push() { emit('state', stateObj()); }
   function find(id) { for (var i = 0; i < RECS.length; i++) if (RECS[i].id === id) return RECS[i]; return null; }
 
+  /* ---------------- 模型市场（演示数据，真机由 ModelManager 提供） ---------------- */
+  var MARKET = {
+    asr: [
+      { id: 'sv-int8', name: 'SenseVoice-Small int8', note: '默认 · 中文 / 英文 / 日文 / 韩文 / 粤语，速度最快', size: '228 MB', ready: true, builtin: true },
+      { id: 'paraformer-zh', name: 'Paraformer-zh int8', note: '纯中文优化，标点更自然，适合会议 / 访谈', size: '217 MB', ready: false, builtin: true },
+      { id: 'sv-fp32', name: 'SenseVoice-Small fp32', note: '高精度版本，体积大、速度慢一些，适合性能好的手机', size: '894 MB', ready: false, builtin: true },
+      { id: 'custom', name: '自定义模型', note: '填入 ONNX 直链 + 词表直链，可选 sensevoice / paraformer', size: '', ready: false, builtin: false }
+    ],
+    tr: [
+      { id: 'hy-mt15', name: '腾讯混元 HY-MT1.5-1.8B', note: '默认 · 翻译专用模型，中英互译质量最好', size: '1.08 GB', ready: true, builtin: true },
+      { id: 'qwen25-1.5b', name: 'Qwen2.5-1.5B-Instruct', note: '通用小模型，术语和长句更灵活，速度略慢于默认模型', size: '1.04 GB', ready: false, builtin: true },
+      { id: 'qwen25-0.5b', name: 'Qwen2.5-0.5B-Instruct', note: '轻量版，占内存小、出词快，适合低配手机', size: '469 MB', ready: false, builtin: true },
+      { id: 'custom', name: '自定义模型', note: '填入任意 GGUF 直链（llama.cpp 可加载的模型）', size: '', ready: false, builtin: false }
+    ]
+  };
+  var M_SEL = { asr: 'sv-int8', tr: 'hy-mt15' };
+  var M_CUSTOM = { asr: null, tr: null };
+
+  function marketKind(kind) {
+    var list = MARKET[kind] || [];
+    var sel = M_SEL[kind] || '';
+    var act = null;
+    for (var i = 0; i < list.length; i++) if (list[i].id === sel) act = list[i];
+    if (!act || (!act.builtin && !M_CUSTOM[kind])) act = list[0];
+    var out = [];
+    for (var j = 0; j < list.length; j++) {
+      var s = list[j];
+      out.push({
+        id: s.id, kind: kind, family: '', name: s.name, note: s.note, size: s.size,
+        bytes: 0, ready: s.ready, active: s.id === act.id, builtin: s.builtin
+      });
+    }
+    return {
+      selected: sel, activeId: act.id, activeName: act.name, activeReady: act.ready,
+      downloading: false, list: out, custom: M_CUSTOM[kind]
+    };
+  }
+  function marketAll() { return { asr: marketKind('asr'), tr: marketKind('tr') }; }
+  function pushMarket() { emit('modelMarket', marketAll()); }
+
+  function fakeDownload(kind) {
+    var list = MARKET[kind] || [];
+    var sel = M_SEL[kind];
+    var spec = null;
+    for (var i = 0; i < list.length; i++) if (list[i].id === sel) spec = list[i];
+    if (!spec || spec.ready) { pushMarket(); return; }
+    var pct = 0;
+    var timer = setInterval(function () {
+      pct += 17;
+      if (pct >= 100) {
+        clearInterval(timer);
+        spec.ready = true;
+        emit('modelDl', { kind: kind, progress: 100, done: true, message: '模型已就绪' });
+        pushMarket();
+        push();
+        return;
+      }
+      emit('modelDl', {
+        kind: kind, progress: pct,
+        message: '正在下载' + (kind === 'asr' ? '转写' : '翻译') + '大模型 ' + pct + '%（演示）'
+      });
+    }, 420);
+  }
+
   function fakeTranscribe(rec) {
     rec.status = 'processing';
     rec.progress = 0;
@@ -272,6 +336,35 @@ SHIM = r"""
       if (navigator.share) { navigator.share({ text: content }).catch(function () {}); return; }
       if (navigator.clipboard) navigator.clipboard.writeText(content).catch(function () {});
     },
+    /* ---- 模型管理（演示：下载进度是假的） ---- */
+    getModelMarket: function () { return JSON.stringify(marketAll()); },
+    selectModel: function (kind, id) {
+      if (!kind) return;
+      M_SEL[kind] = id;
+      pushMarket();
+      push();
+    },
+    saveCustomModel: function (kind, json) {
+      try { M_CUSTOM[kind] = JSON.parse(json || '{}'); } catch (e) { M_CUSTOM[kind] = {}; }
+      M_SEL[kind] = 'custom';
+      var list = MARKET[kind] || [];
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id !== 'custom') continue;
+        var c = M_CUSTOM[kind] || {};
+        list[i].name = c.file ? ('自定义 · ' + c.file) : '自定义模型';
+        if (c.url) list[i].note = '直链：' + c.url;
+        list[i].ready = false;
+      }
+      pushMarket();
+    },
+    downloadModel: function (kind) { fakeDownload(kind); },
+    deleteModel: function (kind) {
+      var list = MARKET[kind] || [];
+      for (var i = 0; i < list.length; i++) if (list[i].id === M_SEL[kind]) list[i].ready = false;
+      pushMarket();
+      push();
+    },
+    openUrl: function (url) { window.open(url, '_blank'); },
     toast: function (msg) { console.log('[toast]', msg); }
   };
 
@@ -285,6 +378,14 @@ SHOWCASE_OUT = os.path.join(ROOT, "design", "index.html")
 
 # 变更记录（最新在前）
 CHANGELOG = [
+    ("v18", "全界面中英切换 · 模型可换 · 进度条修复", [
+        "设置里切 English 现在整屏生效：列表、详情、弹层、提示、配色名称一起变",
+        "配色名称支持英文（Graphite / Ivory / Bean green / Paper），切换后选中态不再丢失",
+        "设置新增「本地模型」：转写模型与翻译模型都能下载 / 切换 / 删除，也支持填自己的直链",
+        "转写可选 SenseVoice-Small int8·fp32、Paraformer-zh；翻译可选 HY-MT1.5、Qwen2.5 1.5B / 0.5B",
+        "设置新增「在线能力 · 付费转写」入口：讯飞听见 / 通义听悟 / 腾讯云 ASR / Whisper API",
+        "修复没点「开始转写」时列表卡片也显示进度条的问题",
+    ], True),
     ("v17", "手动转写 · 搜索全文 · 话题持久化", [
         "录完 / 导入后不再自动转写，卡片右上角改成「开始转写」按钮",
         "搜索支持逐字稿与译文内容，忽略空格与大小写",

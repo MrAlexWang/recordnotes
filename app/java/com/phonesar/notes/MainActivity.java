@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
     private WebView web;
     private MiniServer server;
     private Store store;
+    private ModelManager models;
     private AsrEngine asr;
     private File audioDir;
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -75,8 +76,9 @@ public class MainActivity extends Activity {
         audioDir = new File(getFilesDir(), "audio");
         if (!audioDir.exists() && !audioDir.mkdirs()) Log.w(TAG, "mkdir audio failed");
 
-        asr = new AsrEngine(this);
-        translator = new TranslationEngine(this);
+        models = new ModelManager(this);
+        asr = new AsrEngine(this, models);
+        translator = new TranslationEngine(this, models);
         try {
             server = new MiniServer(this, audioDir);
         } catch (Exception e) {
@@ -633,7 +635,8 @@ public class MainActivity extends Activity {
             o.put("ready", asr.isModelReady());
             o.put("busy", asr.isExtracting());
             o.put("progress", asr.isModelReady() ? 100 : 0);
-            o.put("message", asr.isModelReady() ? "SenseVoice-Small 已就绪" : "正在准备离线模型");
+            o.put("name", asr.spec().name);
+            o.put("message", asr.isModelReady() ? asr.spec().name + " 已就绪" : "正在准备离线模型");
         } catch (Exception ignored) {
         }
         return o.toString();
@@ -856,7 +859,7 @@ public class MainActivity extends Activity {
         pool.execute(() -> {
             try {
                 if (!translator.isReady()) {
-                    emitTranslateProgress(id, 0, "准备下载翻译模型（约 1.08 GB）");
+                    emitTranslateProgress(id, 0, "准备下载翻译模型（" + translator.spec().size + "）");
                     boolean ok = translator.download((pct, msg) -> emitTranslateProgress(id, pct, msg));
                     if (!ok) throw new java.io.IOException("翻译模型下载失败");
                 }
@@ -887,7 +890,7 @@ public class MainActivity extends Activity {
                 }
                 rec.put("transcript", tr);
                 rec.put("translated", true);
-                rec.put("trEngine", "HY-MT1.5-1.8B");
+                rec.put("trEngine", translator.spec().name);
                 store.put(rec);
                 store.save();
                 Log.w(TAG, "translate ok id=" + id + " segs=" + n);
@@ -902,6 +905,44 @@ public class MainActivity extends Activity {
                 translating.remove(id);
             }
         });
+    }
+
+    /* -------------------------- 模型管理 -------------------------- */
+
+    /** 下载 / 切换模型：后台线程执行，进度通过 modelDl 事件回传页面 */
+    void downloadModel(final String kind) {
+        if (kind == null) return;
+        if (models.downloading(kind)) {
+            toastMsg("正在下载中，请稍候");
+            return;
+        }
+        pool.execute(() -> {
+            ModelManager.Spec s = models.active(kind);
+            boolean ok = models.download(s, (pct, msg) -> emit("modelDl",
+                    "{\"kind\":" + JSONObject.quote(kind) + ",\"progress\":" + pct
+                            + ",\"message\":" + JSONObject.quote(msg == null ? "" : msg) + "}"));
+            emit("modelDl", "{\"kind\":" + JSONObject.quote(kind) + ",\"progress\":" + (ok ? 100 : -1)
+                    + ",\"done\":true}");
+            if (ok) {
+                if ("asr".equals(kind)) asr.release();
+                if ("tr".equals(kind)) translator.release();
+            }
+            emit("modelMarket", models.stateJson());
+            emitState();
+        });
+    }
+
+    private void openExternal(String url) {
+        if (url == null || url.isEmpty()) return;
+        try {
+            android.content.Intent i = new android.content.Intent(
+                    android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
+            i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        } catch (Exception e) {
+            Log.w(TAG, "open url failed", e);
+            toastMsg("无法打开链接");
+        }
     }
 
     private void emitTranslateProgress(String id, int pct, String msg) {
@@ -1574,6 +1615,49 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String getTranslateState() {
             return translator == null ? "{\"ready\":false}" : translator.statusJson();
+        }
+
+        /* ---------------------- 模型管理 ---------------------- */
+
+        @JavascriptInterface
+        public String getModelMarket() {
+            return models.stateJson();
+        }
+
+        @JavascriptInterface
+        public void selectModel(String kind, String id) {
+            models.select(kind, id);
+            if ("asr".equals(kind)) asr.release();
+            if ("tr".equals(kind)) translator.release();
+            emit("modelMarket", models.stateJson());
+            emitState();
+        }
+
+        @JavascriptInterface
+        public void saveCustomModel(String kind, String json) {
+            models.saveCustom(kind, json);
+            if ("asr".equals(kind)) asr.release();
+            if ("tr".equals(kind)) translator.release();
+            emit("modelMarket", models.stateJson());
+        }
+
+        @JavascriptInterface
+        public void downloadModel(String kind) {
+            MainActivity.this.downloadModel(kind);
+        }
+
+        @JavascriptInterface
+        public void deleteModel(String kind) {
+            models.delete(models.active(kind));
+            if ("asr".equals(kind)) asr.release();
+            if ("tr".equals(kind)) translator.release();
+            emit("modelMarket", models.stateJson());
+            emitState();
+        }
+
+        @JavascriptInterface
+        public void openUrl(String url) {
+            runOnUiThread(() -> openExternal(url));
         }
 
         @JavascriptInterface

@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.k2fsa.sherpa.onnx.FeatureConfig;
 import com.k2fsa.sherpa.onnx.OfflineModelConfig;
+import com.k2fsa.sherpa.onnx.OfflineParaformerModelConfig;
 import com.k2fsa.sherpa.onnx.OfflineRecognizer;
 import com.k2fsa.sherpa.onnx.OfflineRecognizerConfig;
 import com.k2fsa.sherpa.onnx.OfflineSenseVoiceModelConfig;
@@ -50,10 +51,12 @@ public class AsrEngine {
     }
 
     private final Context ctx;
+    /** 模型市场：具体用哪个转写模型由用户在设置里决定 */
+    private final ModelManager models;
     private final File modelDir;
-    private final File modelFile;
-    private final File tokensFile;
     private final File speakerFile;
+    /** 当前已加载的模型 id，切换模型时需要重建识别器 */
+    private String loadedSpecId = "";
     private OfflineRecognizer recognizer;
     private com.k2fsa.sherpa.onnx.SpeakerEmbeddingExtractor speakerExtractor;
     private volatile boolean extracting = false;
@@ -62,13 +65,17 @@ public class AsrEngine {
     /** 最近一次转写检测到的语种展示文本，例如「普通话 · 英文夹杂」。 */
     public String lastLangLabel = "自动识别";
 
-    public AsrEngine(Context ctx) {
+    public AsrEngine(Context ctx, ModelManager models) {
         this.ctx = ctx.getApplicationContext();
-        this.modelDir = new File(this.ctx.getFilesDir(), "model");
-        this.modelFile = new File(modelDir, "model.int8.onnx");
-        this.tokensFile = new File(modelDir, "tokens.txt");
+        this.models = models;
+        this.modelDir = models.asrDir();
         this.speakerFile = new File(modelDir, "campplus.onnx");
         this.gallery = new VoiceGallery(this.ctx);
+    }
+
+    /** 当前生效的转写模型 */
+    public ModelManager.Spec spec() {
+        return models.active("asr");
     }
 
     public VoiceGallery gallery() {
@@ -79,59 +86,35 @@ public class AsrEngine {
         return speakerFile.exists() && speakerFile.length() > 10L * 1024 * 1024;
     }
 
-    /** 模型是否已就绪（已从 assets 拷贝出来）。 */
+    /** 当前选中的转写模型是否已下载完成 */
     public boolean isModelReady() {
-        return modelFile.exists() && modelFile.length() > 100L * 1024 * 1024
-                && tokensFile.exists() && tokensFile.length() > 1000;
+        return models.ready(spec());
     }
 
     public boolean isExtracting() {
         return extracting;
     }
 
-    /** 把模型从 assets 拷贝到私有目录（一次性）。 */
+    /** 准备当前选中的转写模型（没有就联网下载）+ 可选的声纹模型。 */
     public synchronized void extractIfNeeded(Progress p) {
-        if (isModelReady() && isSpeakerReady()) {
+        ModelManager.Spec s = spec();
+        if (models.ready(s) && isSpeakerReady()) {
             if (p != null) p.onProgress(100, "模型已就绪");
             return;
         }
         extracting = true;
         try {
             if (!modelDir.exists() && !modelDir.mkdirs()) Log.w(TAG, "mkdir model failed");
-            AssetManager am = ctx.getAssets();
-            /* APK 里不再内置模型：本地没有就直接联网下载 */
-            if (!assetExists(am, MODEL_ASSET)) {
-                downloadModels(p);
-                return;
+            if (!models.ready(s)) {
+                Log.w(TAG, "downloading asr model " + s.id);
+                if (!models.download(s, (pct, msg) -> {
+                    if (p != null) p.onProgress(pct, msg);
+                })) {
+                    if (p != null) p.onProgress(-1, "转写模型下载失败，请检查网络后重试");
+                    return;
+                }
             }
-            boolean needMain = !isModelReady();
-            boolean needSpeaker = !isSpeakerReady();
-            long total = 0;
-            if (needMain) total += assetSize(am, MODEL_ASSET) + assetSize(am, TOKENS_ASSET);
-            if (needSpeaker) total += assetSize(am, SPEAKER_ASSET);
-            if (total <= 0) total = 1;
-            long done = 0;
-            if (needMain) {
-                done += copyAsset(am, MODEL_ASSET, new File(modelDir, "model.int8.onnx.tmp"), p, total, done);
-                done += copyAsset(am, TOKENS_ASSET, new File(modelDir, "tokens.txt.tmp"), p, total, done);
-            }
-            if (needSpeaker) {
-                done += copyAsset(am, SPEAKER_ASSET, new File(modelDir, "campplus.onnx.tmp"), p, total, done);
-            }
-
-            if (needMain) {
-                File tmpModel = new File(modelDir, "model.int8.onnx.tmp");
-                File tmpTokens = new File(modelDir, "tokens.txt.tmp");
-                if (modelFile.exists()) modelFile.delete();
-                if (tokensFile.exists()) tokensFile.delete();
-                if (!tmpModel.renameTo(modelFile)) Log.e(TAG, "rename model failed");
-                if (!tmpTokens.renameTo(tokensFile)) Log.e(TAG, "rename tokens failed");
-            }
-            if (needSpeaker) {
-                File tmpSpeaker = new File(modelDir, "campplus.onnx.tmp");
-                if (speakerFile.exists()) speakerFile.delete();
-                if (!tmpSpeaker.renameTo(speakerFile)) Log.e(TAG, "rename speaker model failed");
-            }
+            if (!isSpeakerReady()) downloadSpeaker(p);
             Log.w(TAG, "extract done main=" + isModelReady() + " speaker=" + isSpeakerReady());
             if (p != null) p.onProgress(100, "模型已就绪");
         } catch (Exception e) {
@@ -142,69 +125,27 @@ public class AsrEngine {
         }
     }
 
-    private static final String BASE_HF = "https://hf-mirror.com/";
-    private static final String BASE_HF2 = "https://huggingface.co/";
-
-    private boolean assetExists(AssetManager am, String name) {
-        try (java.io.InputStream in = am.open(name)) {
-            return in != null;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /** 首次使用转写时下载模型（SenseVoice + tokens + CAM++ 声纹）。 */
-    private void downloadModels(Progress p) throws Exception {
-        final String asrPath = "csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/";
-        final String spkPath = "csukuangfj/speaker-embedding-models/resolve/main/3dspeaker_speech_campplus_sv_zh_en_16k-common_advanced.onnx";
-        final long asrBytes = 228L * 1024 * 1024;
-        final long spkBytes = 27L * 1024 * 1024;
-        final long totalBytes = asrBytes + spkBytes;
-
-        if (!isModelReady()) {
-            File tmp = new File(modelDir, "model.int8.onnx.tmp");
-            long[] done = {0};
-            fetch(asrPath + "model.int8.onnx", tmp, asrBytes, totalBytes, done, p, "正在下载转写大模型");
-            fetch(asrPath + "tokens.txt", new File(modelDir, "tokens.txt.tmp"), 0, totalBytes, done, p, "正在下载转写大模型");
-            if (modelFile.exists()) modelFile.delete();
-            if (tokensFile.exists()) tokensFile.delete();
-            if (!tmp.renameTo(modelFile)) Log.e(TAG, "rename model failed");
-            new File(modelDir, "tokens.txt.tmp").renameTo(tokensFile);
-        }
-        /* 声纹模型是可选的：失败不影响转写 */
-        if (!isSpeakerReady()) {
+    /** 声纹模型（可选）：失败不影响转写。 */
+    private void downloadSpeaker(Progress p) {
+        final String path = "csukuangfj/speaker-embedding-models/resolve/main/"
+                + "3dspeaker_speech_campplus_sv_zh_en_16k-common_advanced.onnx";
+        final long expect = 27L * 1024 * 1024;
+        String[] urls = {"https://hf-mirror.com/" + path, "https://huggingface.co/" + path};
+        File part = new File(modelDir, "campplus.onnx.part");
+        for (String url : urls) {
             try {
-                File tmpSpk = new File(modelDir, "campplus.onnx.tmp");
-                long[] done = {0};
-                fetch(spkPath, tmpSpk, spkBytes, totalBytes, done, p, "正在下载声纹模型");
-                if (speakerFile.exists()) speakerFile.delete();
-                tmpSpk.renameTo(speakerFile);
-            } catch (Exception e) {
-                Log.w(TAG, "speaker model download failed: " + e.getMessage());
-            }
-        }
-        Log.w(TAG, "download done main=" + isModelReady() + " speaker=" + isSpeakerReady());
-        if (p != null) p.onProgress(100, "转写模型已就绪");
-    }
-
-    private void fetch(String path, File dst, long expectBytes, long totalBytes,
-                       long[] done, Progress p, String label) throws Exception {
-        String[] bases = {BASE_HF, BASE_HF2};
-        Exception last = null;
-        for (String base : bases) {
-            try {
-                download(base + path, dst, expectBytes, totalBytes, done, p, label);
+                download(url, part, expect, p, "正在下载声纹模型");
+                if (part.length() < expect / 2) throw new java.io.IOException("文件不完整");
+                if (speakerFile.exists() && !speakerFile.delete()) Log.w(TAG, "delete speaker failed");
+                if (!part.renameTo(speakerFile)) Log.w(TAG, "rename speaker failed");
                 return;
             } catch (Exception e) {
-                last = e;
-                Log.w(TAG, "download failed " + base + " -> " + e.getMessage());
+                Log.w(TAG, "speaker download failed " + url + " -> " + e.getMessage());
             }
         }
-        throw last != null ? last : new java.io.IOException("下载失败");
     }
 
-    private void download(String url, File dst, long expectBytes, long totalBytes,
-                          long[] done, Progress p, String label) throws Exception {
+    private void download(String url, File dst, long expectBytes, Progress p, String label) throws Exception {
         java.net.HttpURLConnection conn =
                 (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
         conn.setConnectTimeout(20000);
@@ -215,9 +156,8 @@ public class AsrEngine {
             try { conn.disconnect(); } catch (Exception ignored) {}
             throw new java.io.IOException("HTTP " + code);
         }
-        long size = conn.getContentLength();
-        if (size <= 0) size = expectBytes;
-        long base = done[0];
+        long total = conn.getContentLength();
+        if (total <= 0) total = expectBytes;
         long lastEmit = 0;
         try (java.io.InputStream in = conn.getInputStream();
              java.io.FileOutputStream out = new java.io.FileOutputStream(dst)) {
@@ -227,76 +167,54 @@ public class AsrEngine {
             while ((r = in.read(buf)) > 0) {
                 out.write(buf, 0, r);
                 written += r;
-                done[0] = base + written;
                 long now = System.currentTimeMillis();
                 if (p != null && now - lastEmit > 600) {
                     lastEmit = now;
-                    int pct = (int) Math.min(99, done[0] * 100 / Math.max(1, totalBytes));
+                    int pct = (int) Math.min(99, written * 100 / Math.max(1, total));
                     p.onProgress(pct, label + " " + pct + "%（"
-                            + (done[0] / 1048576) + " / " + (totalBytes / 1048576) + " MB）");
+                            + (written / 1048576) + " / " + (total / 1048576) + " MB）");
                 }
             }
         } finally {
             try { conn.disconnect(); } catch (Exception ignored) {}
         }
-        if (expectBytes > 0 && dst.length() < expectBytes / 2) {
-            throw new java.io.IOException("文件不完整 " + dst.length());
-        }
     }
 
-    private long assetSize(AssetManager am, String name) {
-        try (InputStream in = am.open(name)) {
-            long n = 0;
-            byte[] buf = new byte[64 * 1024];
-            int r;
-            while ((r = in.read(buf)) > 0) n += r;
-            return n;
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private long copyAsset(AssetManager am, String name, File dst, Progress p, long total, long done) throws Exception {
-        try (InputStream in = am.open(name); OutputStream out = new FileOutputStream(dst)) {
-            byte[] buf = new byte[1 << 20];
-            int r;
-            while ((r = in.read(buf)) > 0) {
-                out.write(buf, 0, r);
-                done += r;
-                if (p != null && total > 0) {
-                    int pct = (int) (done * 100 / total);
-                    p.onProgress(Math.min(99, pct), "正在准备离线模型 " + pct + "%");
-                }
-            }
-            out.flush();
-        }
-        return done;
-    }
-
-    /** 初始化识别器（首次约 1-3 秒）。 */
+    /** 初始化识别器（首次约 1-3 秒）。切换模型后会重建。 */
     public synchronized void init() throws Exception {
-        if (recognizer != null) return;
-        if (!isModelReady()) throw new IllegalStateException("模型尚未就绪");
+        ModelManager.Spec s = spec();
+        if (recognizer != null && s.id.equals(loadedSpecId)) return;
+        if (!models.ready(s)) throw new IllegalStateException("模型尚未就绪");
+        release();
         long t0 = System.currentTimeMillis();
+
+        File model = models.fileOf(s);
+        File tokens = models.extraOf(s);
 
         OfflineRecognizerConfig config = new OfflineRecognizerConfig();
         config.setFeatConfig(new FeatureConfig(16000, 80, 0f));
 
-        OfflineSenseVoiceModelConfig sv = new OfflineSenseVoiceModelConfig();
-        sv.setModel(modelFile.getAbsolutePath());
-        sv.setLanguage("auto");
-        sv.setUseInverseTextNormalization(true);
-
         OfflineModelConfig mc = new OfflineModelConfig();
-        mc.setSenseVoice(sv);
-        mc.setTokens(tokensFile.getAbsolutePath());
+        if ("paraformer".equals(s.family)) {
+            OfflineParaformerModelConfig pf = new OfflineParaformerModelConfig();
+            pf.setModel(model.getAbsolutePath());
+            mc.setParaformer(pf);
+        } else {
+            OfflineSenseVoiceModelConfig sv = new OfflineSenseVoiceModelConfig();
+            sv.setModel(model.getAbsolutePath());
+            sv.setLanguage("auto");
+            sv.setUseInverseTextNormalization(true);
+            mc.setSenseVoice(sv);
+        }
+        if (tokens != null) mc.setTokens(tokens.getAbsolutePath());
         mc.setNumThreads(4);
         mc.setDebug(false);
         mc.setProvider("cpu");
         config.setModelConfig(mc);
 
         recognizer = new OfflineRecognizer(null, config);
-        Log.w(TAG, "recognizer ready in " + (System.currentTimeMillis() - t0) + "ms");
+        loadedSpecId = s.id;
+        Log.w(TAG, "recognizer(" + s.id + ") ready in " + (System.currentTimeMillis() - t0) + "ms");
     }
 
     /** 分片转写，返回带起始时间的片段。 */
@@ -600,6 +518,7 @@ public class AsrEngine {
             } catch (Exception ignored) {
             }
             recognizer = null;
+            loadedSpecId = "";
         }
     }
 }
